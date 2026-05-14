@@ -9,7 +9,10 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Manipulator Pro</title>
+    <meta name="description" content="Text Manipulator Pro — a sleek, modern text manipulation tool with 100+ operations: case conversion, encoding, hashing, line operations, statistics, and more.">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Text Manipulator Pro v3.0</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='50%25' stop-color='%23818cf8'/%3E%3Cstop offset='100%25' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='Inter,Arial' font-weight='800' font-size='62' fill='white'%3ET%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -782,7 +785,6 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             border-radius: 7px;
             font-size: 11.5px;
             font-weight: 500;
-            white-space: nowrap;
             max-width: 280px;
             white-space: normal;
             text-align: center;
@@ -792,6 +794,53 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2);
             pointer-events: none;
         }
+
+        /* ===== Accessibility ===== */
+        :focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        .icon-btn:focus-visible,
+        .action-btn:focus-visible,
+        .nav-item:focus-visible,
+        .tab:focus-visible {
+            outline-offset: 1px;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* Disabled state */
+        .action-btn:disabled,
+        .action-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .action-btn:disabled::before,
+        .action-btn[disabled]::before { opacity: 0 !important; }
+        .action-btn:disabled:hover > *,
+        .action-btn[disabled]:hover > * { color: var(--text-mute) !important; }
+
+        /* Tab name truncation & pinned tabs */
+        .tab > span:not(.close-x) { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+        .tab.pinned i.fa-thumbtack { color: #3b82f6; }
 
         /* ===== Editor Footer ===== */
         .editor-toggle-btn {
@@ -978,10 +1027,24 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             .sidebar-expanded { width: 260px; }
             .mobile-menu-toggle { display: inline-flex !important; }
             .stat-pill.l, .stat-pill.p { display: none; }
+            .status-bar { font-size: 10.5px; gap: 8px; flex-wrap: wrap; padding: 5px 10px; }
+            .status-bar .sb-divider { display: none; }
+            .status-bar .sb-spacer { flex-basis: 100%; height: 0; }
+            .status-bar .sb-hide-md { display: none !important; }
         }
         @media (max-width: 640px) {
             .stat-pill.w { display: none; }
             .brand-text { display: none; }
+            .topbar .icon-btn { width: 32px; height: 32px; }
+            .editor-scroll-nav { right: 12px; bottom: 50px; }
+            .status-bar .sb-hide-sm { display: none !important; }
+            .status-bar { gap: 6px; }
+            .status-bar .sb-item { font-size: 10px; }
+        }
+        @media (max-width: 480px) {
+            .stat-pill.c { display: none; }
+            .topbar-actions-secondary { display: none; }
+            .status-bar .sb-hide-xs { display: none !important; }
         }
 
         .mobile-overlay {
@@ -1129,8 +1192,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
         function Sidebar({ activeCategory, setActiveCategory, categories, isCollapsed, setIsCollapsed, mobileOpen, closeMobile }) {
             return (
                 <>
-                    <div className={`mobile-overlay ${mobileOpen ? 'active' : ''}`} onClick={closeMobile}></div>
-                    <aside className={`sidebar ${isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} ${mobileOpen ? 'mobile-open' : ''}`}>
+                    <div className={`mobile-overlay ${mobileOpen ? 'active' : ''}`} onClick={closeMobile} aria-hidden="true"></div>
+                    <aside className={`sidebar ${isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Category navigation">
                         <div style={{ padding: '14px 12px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             {!isCollapsed && <span className="nav-section-label" style={{ padding: 0 }}>Workspace</span>}
                             <button
@@ -1147,10 +1210,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                 <div
                                     key={category.id}
                                     onClick={() => { setActiveCategory(category.id); closeMobile(); }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveCategory(category.id); closeMobile(); } }}
                                     className={`nav-item ${activeCategory === category.id ? 'active' : ''}`}
                                     title={isCollapsed ? category.name : ''}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-current={activeCategory === category.id ? 'page' : undefined}
                                 >
-                                    <span className="nav-icon"><i className={category.icon}></i></span>
+                                    <span className="nav-icon" aria-hidden="true"><i className={category.icon}></i></span>
                                     {!isCollapsed && <span>{category.name}</span>}
                                 </div>
                             ))}
@@ -1405,9 +1472,10 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
         }
 
         // ============= Tab Bar =============
-        function TabBar({ tabs, activeTab, setActiveTab, onNewTab, onCloseTab, onRenameTab }) {
+        function TabBar({ tabs, activeTab, setActiveTab, onNewTab, onCloseTab, onRenameTab, onPinTab, onDuplicateTab }) {
             const [editingId, setEditingId] = React.useState(null);
             const [editValue, setEditValue] = React.useState('');
+            const [contextMenu, setContextMenu] = React.useState(null);
             const inputRef = React.useRef(null);
 
             React.useEffect(() => {
@@ -1416,6 +1484,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     inputRef.current.select();
                 }
             }, [editingId]);
+
+            React.useEffect(() => {
+                if (!contextMenu) return;
+                const close = () => setContextMenu(null);
+                document.addEventListener('click', close);
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+                return () => document.removeEventListener('click', close);
+            }, [contextMenu]);
 
             const startEdit = (tab) => {
                 setEditingId(tab.id);
@@ -1429,15 +1505,29 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 }
             };
 
+            const handleContextMenu = (e, tab) => {
+                e.preventDefault();
+                setContextMenu({ x: e.clientX, y: e.clientY, tabId: tab.id });
+            };
+
+            const closableCount = tabs.filter(t => !t.pinned).length;
+
             return (
-                <div className="tabbar">
+                <div className="tabbar" role="tablist" aria-label="Open documents">
                     {tabs.map(tab => (
                         <div key={tab.id}
-                            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+                            className={`tab ${activeTab === tab.id ? 'active' : ''} ${tab.pinned ? 'pinned' : ''}`}
+                            role="tab"
+                            tabIndex={0}
+                            aria-selected={activeTab === tab.id}
                             onClick={() => setActiveTab(tab.id)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(tab.id); } }}
                             onDoubleClick={() => startEdit(tab)}
-                            title="Double-click to rename">
-                            <i className="fas fa-file-lines" style={{ fontSize: 10, opacity: 0.7 }}></i>
+                            onContextMenu={(e) => handleContextMenu(e, tab)}
+                            title={tab.pinned ? `${tab.name} (pinned) — right-click for options` : 'Double-click to rename, right-click for options'}>
+                            {tab.pinned
+                                ? <i className="fas fa-thumbtack" style={{ fontSize: 9 }}></i>
+                                : <i className="fas fa-file-lines" style={{ fontSize: 10, opacity: 0.7 }}></i>}
                             {editingId === tab.id ? (
                                 <input
                                     ref={inputRef}
@@ -1464,16 +1554,54 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                             ) : (
                                 <span>{tab.name}{tab.dirty ? ' •' : ''}</span>
                             )}
-                            {tabs.length > 1 && editingId !== tab.id && (
-                                <span className="close-x" onClick={(e) => { e.stopPropagation(); onCloseTab(tab.id); }}>
+                            {(closableCount > 1 || !tab.pinned) && editingId !== tab.id && !tab.pinned && (
+                                <span className="close-x" onClick={(e) => { e.stopPropagation(); onCloseTab(tab.id); }} aria-label={`Close ${tab.name}`} role="button">
                                     <i className="fas fa-times"></i>
                                 </span>
                             )}
                         </div>
                     ))}
-                    <button onClick={onNewTab} className="icon-btn" style={{ width: 28, height: 28, margin: '0 4px' }} title="New tab (Ctrl+T)">
+                    <button onClick={onNewTab} className="icon-btn" style={{ width: 28, height: 28, margin: '0 4px' }} title="New tab (Ctrl+T)" aria-label="New tab">
                         <i className="fas fa-plus" style={{ fontSize: 11 }}></i>
                     </button>
+                    {contextMenu && (() => {
+                        const tab = tabs.find(t => t.id === contextMenu.tabId);
+                        if (!tab) return null;
+                        // Constrain menu within viewport
+                        const x = Math.min(contextMenu.x, window.innerWidth - 200);
+                        const y = Math.min(contextMenu.y, window.innerHeight - 200);
+                        return (
+                            <div role="menu" onClick={(e) => e.stopPropagation()}
+                                style={{
+                                    position: 'fixed', left: x, top: y, zIndex: 200,
+                                    background: 'var(--surface)', border: '1px solid var(--border)',
+                                    borderRadius: 10, boxShadow: 'var(--shadow-lg)', padding: 4, minWidth: 180,
+                                    animation: 'pop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                }}>
+                                {[
+                                    { icon: 'fa-pen', label: 'Rename', action: () => startEdit(tab) },
+                                    { icon: 'fa-clone', label: 'Duplicate', action: () => onDuplicateTab && onDuplicateTab(tab.id) },
+                                    { icon: tab.pinned ? 'fa-thumbtack' : 'fa-thumbtack', iconStyle: tab.pinned ? { transform: 'rotate(45deg)' } : null, label: tab.pinned ? 'Unpin tab' : 'Pin tab', action: () => onPinTab(tab.id) },
+                                    { divider: true },
+                                    { icon: 'fa-times', label: 'Close', action: () => onCloseTab(tab.id), disabled: tab.pinned, danger: true }
+                                ].map((item, i) => item.divider
+                                    ? <div key={i} style={{ height: 1, background: 'var(--border)', margin: '4px 0' }}></div>
+                                    : <div key={i} role="menuitem" onClick={() => { if (item.disabled) return; item.action(); setContextMenu(null); }}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px',
+                                            borderRadius: 6, fontSize: 12.5, cursor: item.disabled ? 'not-allowed' : 'pointer',
+                                            opacity: item.disabled ? 0.5 : 1,
+                                            color: item.danger ? '#ef4444' : 'var(--text)'
+                                        }}
+                                        onMouseEnter={(e) => { if (!item.disabled) e.currentTarget.style.background = 'var(--surface-2)'; }}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <i className={`fas ${item.icon}`} style={{ width: 14, fontSize: 11, ...(item.iconStyle || {}) }}></i>
+                                        <span>{item.label}</span>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             );
         }
@@ -1608,39 +1736,78 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             } catch (e) { console.warn('Quill register error', e); }
         }
 
-        // Web Worker utility with proper cleanup
+        // Web Worker utility with proper cleanup and timeout safety
         const runInWorker = (fn, ...args) => {
             return new Promise((resolve, reject) => {
-                const code = `self.onmessage = async (e) => { try { const r = (${fn.toString()})(...e.data); postMessage({ success: true, result: r }); } catch (err) { postMessage({ success: false, error: err.message }); } };`;
-                const blob = new Blob([code], { type: 'application/javascript' });
-                const blobUrl = URL.createObjectURL(blob);
-                const w = new Worker(blobUrl);
-                w.onmessage = (e) => {
-                    if (e.data.success) resolve(e.data.result);
-                    else reject(new Error(e.data.error));
-                    w.terminate();
-                    URL.revokeObjectURL(blobUrl);
+                let settled = false;
+                let blobUrl = null;
+                let w = null;
+                const cleanup = () => {
+                    try { if (w) w.terminate(); } catch (e) {}
+                    try { if (blobUrl) URL.revokeObjectURL(blobUrl); } catch (e) {}
                 };
-                w.onerror = (err) => {
-                    reject(err);
-                    w.terminate();
-                    URL.revokeObjectURL(blobUrl);
-                };
-                w.postMessage(args);
+                try {
+                    const code = `self.onmessage = async (e) => { try { const r = (${fn.toString()})(...e.data); postMessage({ success: true, result: r }); } catch (err) { postMessage({ success: false, error: err.message }); } };`;
+                    const blob = new Blob([code], { type: 'application/javascript' });
+                    blobUrl = URL.createObjectURL(blob);
+                    w = new Worker(blobUrl);
+                    // 15-second safety timeout to prevent hung workers
+                    const timeoutId = setTimeout(() => {
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        reject(new Error('Operation timed out (15s) — text may be too large'));
+                    }, 15000);
+                    w.onmessage = (e) => {
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timeoutId);
+                        if (e.data.success) resolve(e.data.result);
+                        else reject(new Error(e.data.error));
+                        cleanup();
+                    };
+                    w.onerror = (err) => {
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timeoutId);
+                        reject(new Error(err.message || 'Worker error'));
+                        cleanup();
+                    };
+                    w.postMessage(args);
+                } catch (e) {
+                    // Fallback: run synchronously if Worker not supported
+                    try {
+                        cleanup();
+                        const r = fn(...args);
+                        resolve(r);
+                    } catch (err) {
+                        reject(err);
+                    }
+                }
             });
         };
 
         // ============= Main App =============
         function App() {
             const [darkMode, setDarkMode] = React.useState(() => {
-                const saved = localStorage.getItem('darkMode');
-                return saved ? JSON.parse(saved) : false;
+                try {
+                    const saved = localStorage.getItem('darkMode');
+                    if (saved !== null) return JSON.parse(saved);
+                } catch (e) {}
+                // Fall back to system preference
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             });
             const [sidebarCollapsed, setSidebarCollapsed] = React.useState(() => window.innerWidth < 1100);
             const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
             const [isFullscreen, setIsFullscreen] = React.useState(false);
             const [editorExpanded, setEditorExpanded] = React.useState(false);
-            const [wordWrap, setWordWrap] = React.useState(true);
+            const [wordWrap, setWordWrap] = React.useState(() => {
+                try {
+                    const saved = localStorage.getItem('tm_wordWrap');
+                    if (saved !== null) return JSON.parse(saved);
+                } catch (e) {}
+                return true;
+            });
             const [activeCategory, setActiveCategory] = React.useState('formatting');
             const [toasts, setToasts] = React.useState([]);
             const [isLoading, setIsLoading] = React.useState(false);
@@ -1670,11 +1837,25 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const currentTab = tabs.find(t => t.id === activeTab) || tabs[0];
             const text = currentTab?.text || '';
 
-            // Persist tabs and active tab
+            // Persist tabs and active tab (debounced to reduce localStorage writes)
+            const persistTimerRef = React.useRef(null);
             React.useEffect(() => {
-                try {
-                    localStorage.setItem('tm_tabs', JSON.stringify(tabs));
-                } catch (e) { /* quota exceeded */ }
+                if (persistTimerRef.current) clearTimeout(persistTimerRef.current);
+                persistTimerRef.current = setTimeout(() => {
+                    try {
+                        // Strip transient `dirty` flag — it represents unsaved-since-load state and
+                        // should not persist across reloads (everything restored is by definition "saved").
+                        const persistable = tabs.map(({ dirty, ...rest }) => rest);
+                        localStorage.setItem('tm_tabs', JSON.stringify(persistable));
+                    } catch (e) {
+                        // Quota exceeded — inform user once
+                        if (!window.__tmQuotaWarned) {
+                            window.__tmQuotaWarned = true;
+                            showToast('Storage quota exceeded — export your session manually', 'warning');
+                        }
+                    }
+                }, 500);
+                return () => { if (persistTimerRef.current) clearTimeout(persistTimerRef.current); };
             }, [tabs]);
             React.useEffect(() => {
                 try { localStorage.setItem('tm_activeTab', JSON.stringify(activeTab)); } catch (e) {}
@@ -1692,18 +1873,85 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const [decorateApostrophes, setDecorateApostrophes] = React.useState(false);
             const [decorateHyphens, setDecorateHyphens] = React.useState(false);
 
+            // ===== New: Regex Lab state =====
+            const [regexPattern, setRegexPattern] = React.useState('');
+            const [regexFlags, setRegexFlags] = React.useState('gi');
+            const [regexReplacement, setRegexReplacement] = React.useState('');
+            const [regexMatches, setRegexMatches] = React.useState([]);
+            const [regexError, setRegexError] = React.useState('');
+
+            // ===== New: Diff state =====
+            const [diffOtherTab, setDiffOtherTab] = React.useState(null);
+
+            // ===== New: Generator state =====
+            const [pwLength, setPwLength] = React.useState(20);
+            const [pwUpper, setPwUpper] = React.useState(true);
+            const [pwLower, setPwLower] = React.useState(true);
+            const [pwDigits, setPwDigits] = React.useState(true);
+            const [pwSymbols, setPwSymbols] = React.useState(true);
+            const [pwAmbiguous, setPwAmbiguous] = React.useState(false);
+            const [pwCount, setPwCount] = React.useState(5);
+
+            // ===== New: Shortcuts modal =====
+            const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+            const [aboutOpen, setAboutOpen] = React.useState(false);
+
+            // ===== New: Settings (persisted) =====
+            const loadSetting = (key, fallback) => {
+                try {
+                    const v = localStorage.getItem(key);
+                    return v !== null ? JSON.parse(v) : fallback;
+                } catch (e) { return fallback; }
+            };
+            const [editorFontSize, setEditorFontSize] = React.useState(() => loadSetting('tm_fontSize', 14));
+            const [editorFontFamily, setEditorFontFamily] = React.useState(() => loadSetting('tm_fontFamily', 'Inter'));
+            const [editorLineHeight, setEditorLineHeight] = React.useState(() => loadSetting('tm_lineHeight', 1.65));
+            const [autoSaveEnabled, setAutoSaveEnabled] = React.useState(() => loadSetting('tm_autoSave', true));
+            const [confirmDestructive, setConfirmDestructive] = React.useState(() => loadSetting('tm_confirmDestructive', true));
+            const [spellCheck, setSpellCheck] = React.useState(() => loadSetting('tm_spellCheck', false));
+            const [lastSavedAt, setLastSavedAt] = React.useState(null);
+
+            // Persist settings
+            React.useEffect(() => { try { localStorage.setItem('tm_fontSize', JSON.stringify(editorFontSize)); } catch (e) {} }, [editorFontSize]);
+            React.useEffect(() => { try { localStorage.setItem('tm_fontFamily', JSON.stringify(editorFontFamily)); } catch (e) {} }, [editorFontFamily]);
+            React.useEffect(() => { try { localStorage.setItem('tm_lineHeight', JSON.stringify(editorLineHeight)); } catch (e) {} }, [editorLineHeight]);
+            React.useEffect(() => { try { localStorage.setItem('tm_autoSave', JSON.stringify(autoSaveEnabled)); } catch (e) {} }, [autoSaveEnabled]);
+            React.useEffect(() => { try { localStorage.setItem('tm_confirmDestructive', JSON.stringify(confirmDestructive)); } catch (e) {} }, [confirmDestructive]);
+            React.useEffect(() => { try { localStorage.setItem('tm_spellCheck', JSON.stringify(spellCheck)); } catch (e) {} }, [spellCheck]);
+
+            // Apply editor styling settings
+            React.useEffect(() => {
+                const ed = document.querySelector('.ql-editor');
+                if (ed) {
+                    ed.style.fontSize = editorFontSize + 'px';
+                    ed.style.fontFamily = editorFontFamily === 'Mono' ? "'JetBrains Mono', monospace" : (editorFontFamily === 'Serif' ? "'Georgia', serif" : "'Inter', sans-serif");
+                    ed.style.lineHeight = editorLineHeight;
+                    ed.setAttribute('spellcheck', spellCheck ? 'true' : 'false');
+                }
+            }, [editorFontSize, editorFontFamily, editorLineHeight, spellCheck, activeCategory]);
+
+            const confirmAction = (msg) => {
+                if (!confirmDestructive) return true;
+                return window.confirm(msg);
+            };
+
             const categories = [
                 { id: 'formatting',   name: 'Text Formatting',  icon: 'fas fa-font' },
                 { id: 'caseconv',     name: 'Case Conversion',  icon: 'fas fa-text-height' },
                 { id: 'lines',        name: 'Line Operations',  icon: 'fas fa-list' },
+                { id: 'transform',    name: 'Fun Transforms',   icon: 'fas fa-wand-sparkles' },
                 { id: 'wordsymbol',   name: 'Word Symbol',      icon: 'fas fa-quote-left' },
                 { id: 'lettersymbol', name: 'Letter Symbol',    icon: 'fas fa-spell-check' },
                 { id: 'encoding',     name: 'Encoding',         icon: 'fas fa-code' },
                 { id: 'hash',         name: 'Hash & Crypto',    icon: 'fas fa-fingerprint' },
+                { id: 'generators',   name: 'Generators',       icon: 'fas fa-dice' },
+                { id: 'regex',        name: 'Regex Lab',        icon: 'fas fa-asterisk' },
+                { id: 'diff',         name: 'Text Diff',        icon: 'fas fa-code-compare' },
                 { id: 'documents',    name: 'Documents',        icon: 'fas fa-file-import' },
                 { id: 'utilities',    name: 'Utilities',        icon: 'fas fa-tools' },
                 { id: 'stats',        name: 'Statistics',       icon: 'fas fa-chart-simple' },
-                { id: 'export',       name: 'Export',           icon: 'fas fa-download' }
+                { id: 'export',       name: 'Export',           icon: 'fas fa-download' },
+                { id: 'settings',     name: 'Settings',         icon: 'fas fa-gear' }
             ];
 
             // Apply dark mode
@@ -1713,17 +1961,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 localStorage.setItem('darkMode', JSON.stringify(darkMode));
             }, [darkMode]);
 
-            // Apply word wrap
+            // Apply word wrap & persist preference
             React.useEffect(() => {
                 const el = document.getElementById('quill-editor');
-                if (!el) return;
-                if (wordWrap) {
-                    el.classList.remove('wordwrap-off');
-                    el.classList.add('wordwrap-on');
-                } else {
-                    el.classList.remove('wordwrap-on');
-                    el.classList.add('wordwrap-off');
+                if (el) {
+                    if (wordWrap) {
+                        el.classList.remove('wordwrap-off');
+                        el.classList.add('wordwrap-on');
+                    } else {
+                        el.classList.remove('wordwrap-on');
+                        el.classList.add('wordwrap-off');
+                    }
                 }
+                try { localStorage.setItem('tm_wordWrap', JSON.stringify(wordWrap)); } catch (e) {}
             }, [wordWrap]);
 
             // Toast event
@@ -1762,6 +2012,11 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         e.preventDefault();
                         saveAsTxt();
                     }
+                    // Ctrl+Shift+T → Reopen recently closed tab
+                    else if (mod && e.shiftKey && (e.key === 't' || e.key === 'T')) {
+                        e.preventDefault();
+                        reopenClosedTab();
+                    }
                     // Ctrl+T → New tab
                     else if (mod && (e.key === 't' || e.key === 'T')) {
                         e.preventDefault();
@@ -1780,6 +2035,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         const next = e.shiftKey ? (idx - 1 + tabs.length) % tabs.length : (idx + 1) % tabs.length;
                         setActiveTab(tabs[next].id);
                     }
+                    // Ctrl+Shift+D → toggle dark mode
+                    else if (mod && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+                        e.preventDefault();
+                        setDarkMode(d => !d);
+                    }
+                    // Ctrl+Shift+Z / Ctrl+Y → redo
+                    else if ((mod && e.shiftKey && (e.key === 'Z' || e.key === 'z')) || (mod && !e.shiftKey && (e.key === 'y' || e.key === 'Y'))) {
+                        // Quill handles its own when editor is focused; we add global fallback
+                        if (document.activeElement && !document.activeElement.closest('.ql-editor')) {
+                            e.preventDefault();
+                            redo();
+                        }
+                    }
                     // Ctrl+1..9 → switch tab
                     else if (mod && /^[1-9]$/.test(e.key)) {
                         const idx = parseInt(e.key, 10) - 1;
@@ -1789,11 +2057,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     else if (e.key === 'Escape') {
                         if (findOpen) setFindOpen(false);
                         else if (paletteOpen) setPaletteOpen(false);
+                        else if (shortcutsOpen) setShortcutsOpen(false);
+                        else if (aboutOpen) setAboutOpen(false);
+                        else if (mobileMenuOpen) setMobileMenuOpen(false);
                     }
                 };
                 document.addEventListener('keydown', onKey);
                 return () => document.removeEventListener('keydown', onKey);
-            }, [tabs, activeTab, findOpen, paletteOpen]);
+            }, [tabs, activeTab, findOpen, paletteOpen, shortcutsOpen, aboutOpen, mobileMenuOpen]);
 
             // Init Quill
             React.useEffect(() => {
@@ -1838,6 +2109,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     quillInstance.off('text-change');
                     quillInstance.setText(currentTab.text || '');
                     quillInstance.on('text-change', handleTextChange);
+                    // Reset cursor position on tab switch
+                    setCursorPos({ line: 1, col: 1, selLen: 0 });
                 }
             }, [activeTab]);
 
@@ -1845,6 +2118,15 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 if (searchWord.trim()) countWordOccurrences(text, searchWord);
                 else setWordOccurrences(0);
             }, [text, searchWord]);
+
+            // Close mobile menu when resizing past breakpoint
+            React.useEffect(() => {
+                const onResize = () => {
+                    if (window.innerWidth > 900 && mobileMenuOpen) setMobileMenuOpen(false);
+                };
+                window.addEventListener('resize', onResize);
+                return () => window.removeEventListener('resize', onResize);
+            }, [mobileMenuOpen]);
 
             const updateTab = (tabId, updatedTab) => {
                 setTabs(prev => prev.map(t => t.id === tabId ? updatedTab : t));
@@ -1858,11 +2140,23 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const updateText = setText;
 
             const debounceTimerRef = React.useRef(null);
+            // Cleanup debounce timer on unmount
+            React.useEffect(() => () => {
+                if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            }, []);
             const handleTextChange = () => {
                 if (!quillInstance) return;
                 if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
                 const newText = quillInstance.getText();
                 const targetTabId = activeTab;
+                // Mark dirty immediately for fast visual feedback
+                setTabs(prevTabs => {
+                    const t = prevTabs.find(x => x.id === targetTabId);
+                    if (t && !t.dirty && t.text !== newText) {
+                        return prevTabs.map(x => x.id === targetTabId ? { ...x, dirty: true } : x);
+                    }
+                    return prevTabs;
+                });
                 debounceTimerRef.current = setTimeout(() => {
                     setTabs(prevTabs => {
                         const t = prevTabs.find(x => x.id === targetTabId);
@@ -1976,14 +2270,45 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 } finally { setIsLoading(false); }
             };
 
+            const closedTabsRef = React.useRef([]);
+
             const addNewTab = () => {
+                const MAX_TABS = 20;
+                if (tabs.length >= MAX_TABS) {
+                    showToast(`Maximum ${MAX_TABS} tabs reached — close some first`, 'warning');
+                    return;
+                }
                 const newId = (tabs.length ? Math.max(...tabs.map(t => t.id)) : 0) + 1;
                 setTabs(prev => [...prev, { id: newId, name: `Document ${newId}`, text: '' }]);
                 setActiveTab(newId);
                 showToast('New tab created', 'success');
             };
+
+            const reopenClosedTab = () => {
+                if (!closedTabsRef.current || closedTabsRef.current.length === 0) {
+                    showToast('No recently closed tabs', 'info');
+                    return;
+                }
+                const MAX_TABS = 20;
+                if (tabs.length >= MAX_TABS) {
+                    showToast(`Maximum ${MAX_TABS} tabs reached — close some first`, 'warning');
+                    return;
+                }
+                const [restored, ...rest] = closedTabsRef.current;
+                closedTabsRef.current = rest;
+                const newId = (tabs.length ? Math.max(...tabs.map(t => t.id)) : 0) + 1;
+                const restoredTab = { ...restored, id: newId, pinned: false, dirty: false };
+                setTabs(prev => [...prev, restoredTab]);
+                setActiveTab(newId);
+                showToast(`Reopened "${restoredTab.name}"`, 'success');
+            };
             const closeTab = (tabId) => {
                 if (tabs.length === 1) {
+                    const onlyTab = tabs[0];
+                    if (onlyTab.text && onlyTab.text.trim().length > 0) {
+                        if (!confirmAction('Clear the current document? Unsaved content will be lost.')) return;
+                        closedTabsRef.current = [onlyTab, ...closedTabsRef.current].slice(0, 10);
+                    }
                     // Reset the only tab instead of closing
                     setTabs([{ id: 1, name: 'Document 1', text: '' }]);
                     setActiveTab(1);
@@ -1996,9 +2321,15 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     return;
                 }
                 const tabToClose = tabs.find(t => t.id === tabId);
-                if (tabToClose && tabToClose.text && tabToClose.text.trim().length > 0) {
-                    if (!window.confirm(`Close "${tabToClose.name}"? Unsaved content will be lost.`)) return;
+                if (!tabToClose) return;
+                if (tabToClose.pinned) {
+                    showToast('Cannot close a pinned tab — unpin first', 'warning');
+                    return;
                 }
+                if (tabToClose.text && tabToClose.text.trim().length > 0) {
+                    if (!confirmAction(`Close "${tabToClose.name}"? Unsaved content will be lost.`)) return;
+                }
+                closedTabsRef.current = [tabToClose, ...closedTabsRef.current].slice(0, 10);
                 setTabs(prev => {
                     const f = prev.filter(t => t.id !== tabId);
                     if (activeTab === tabId) {
@@ -2009,11 +2340,22 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     return f;
                 });
             };
+            const togglePinTab = (tabId) => {
+                setTabs(prev => prev.map(t => t.id === tabId ? { ...t, pinned: !t.pinned } : t));
+                const t = tabs.find(x => x.id === tabId);
+                showToast(t && t.pinned ? 'Tab unpinned' : 'Tab pinned', 'info');
+            };
             const renameTab = (tabId, newName) => {
                 setTabs(prev => prev.map(t => t.id === tabId ? { ...t, name: newName } : t));
                 showToast('Tab renamed', 'success');
             };
             const duplicateTab = () => {
+                if (!currentTab) return;
+                const MAX_TABS = 20;
+                if (tabs.length >= MAX_TABS) {
+                    showToast(`Maximum ${MAX_TABS} tabs reached — close some first`, 'warning');
+                    return;
+                }
                 const newId = (tabs.length ? Math.max(...tabs.map(t => t.id)) : 0) + 1;
                 setTabs(prev => [...prev, { id: newId, name: `${currentTab.name} (copy)`, text: currentTab.text }]);
                 setActiveTab(newId);
@@ -2021,9 +2363,16 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             };
             const closeOtherTabs = () => {
                 if (tabs.length <= 1) return;
-                if (!window.confirm(`Close all other tabs? ${tabs.length - 1} tab(s) will be closed.`)) return;
-                setTabs(prev => prev.filter(t => t.id === activeTab));
-                showToast('Other tabs closed', 'success');
+                const closable = tabs.filter(t => t.id !== activeTab && !t.pinned);
+                if (closable.length === 0) {
+                    showToast('No closable tabs (others are pinned)', 'info');
+                    return;
+                }
+                if (!confirmAction(`Close ${closable.length} other tab(s)? Pinned tabs will be preserved.`)) return;
+                const closedTabs = tabs.filter(t => t.id !== activeTab && !t.pinned);
+                closedTabsRef.current = [...closedTabs, ...closedTabsRef.current].slice(0, 10);
+                setTabs(prev => prev.filter(t => t.id === activeTab || t.pinned));
+                showToast(`Closed ${closable.length} tab${closable.length !== 1 ? 's' : ''}`, 'success');
             };
             const exportSession = () => {
                 try {
@@ -2077,9 +2426,11 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
 
             const countWordOccurrences = (currentText, w) => {
                 if (!currentText.trim() || !w.trim()) { setWordOccurrences(0); return; }
-                const regex = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                const m = currentText.match(regex);
-                setWordOccurrences(m ? m.length : 0);
+                try {
+                    const regex = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                    const m = currentText.match(regex);
+                    setWordOccurrences(m ? m.length : 0);
+                } catch (e) { setWordOccurrences(0); }
             };
 
             // ===== Word Symbol =====
@@ -2153,21 +2504,26 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             };
 
             const undo = () => {
-                if (quillInstance) {
+                if (quillInstance && quillInstance.history) {
                     const before = quillInstance.getText();
                     quillInstance.history.undo();
                     const after = quillInstance.getText();
-                    if (before !== after) showToast('Undo', 'info');
-                    else showToast('Nothing to undo', 'warning');
+                    if (before !== after) {
+                        // Sync to tabs immediately
+                        setTabs(prev => prev.map(t => t.id === activeTab ? { ...t, text: after } : t));
+                        showToast('Undo', 'info');
+                    } else showToast('Nothing to undo', 'warning');
                 } else showToast('Nothing to undo', 'warning');
             };
             const redo = () => {
-                if (quillInstance) {
+                if (quillInstance && quillInstance.history) {
                     const before = quillInstance.getText();
                     quillInstance.history.redo();
                     const after = quillInstance.getText();
-                    if (before !== after) showToast('Redo', 'info');
-                    else showToast('Nothing to redo', 'warning');
+                    if (before !== after) {
+                        setTabs(prev => prev.map(t => t.id === activeTab ? { ...t, text: after } : t));
+                        showToast('Redo', 'info');
+                    } else showToast('Nothing to redo', 'warning');
                 } else showToast('Nothing to redo', 'warning');
             };
 
@@ -2185,8 +2541,12 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             };
             const removeEmptyLines = () => {
                 if (!text.trim()) return showToast('No text to process', 'warning');
-                setText(text.split('\n').filter(l => l.trim() !== '').join('\n'));
-                showToast('Empty lines removed', 'success');
+                const lines = text.split('\n');
+                const filtered = lines.filter(l => l.trim() !== '');
+                const removed = lines.length - filtered.length;
+                if (removed === 0) { showToast('No empty lines found', 'info'); return; }
+                setText(filtered.join('\n'));
+                showToast(`Removed ${removed} empty line${removed !== 1 ? 's' : ''}`, 'success');
             };
             const addLineNumbers = () => {
                 if (!text.trim()) return showToast('No text to process', 'warning');
@@ -2209,12 +2569,27 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             // ===== Encoding =====
             const encodeBase64 = () => {
                 if (!text.trim()) return showToast('No text to encode', 'warning');
-                try { setText(btoa(text)); showToast('Base64 encoded', 'success'); }
-                catch (e) { showToast('Encode failed', 'error'); }
+                try {
+                    // Unicode-safe encoding
+                    const bytes = new TextEncoder().encode(text);
+                    let bin = '';
+                    bytes.forEach(b => { bin += String.fromCharCode(b); });
+                    setText(btoa(bin));
+                    showToast('Base64 encoded', 'success');
+                }
+                catch (e) { showToast('Encode failed: ' + e.message, 'error'); }
             };
             const decodeBase64 = () => {
                 if (!text.trim()) return showToast('No text to decode', 'warning');
-                try { setText(atob(text)); showToast('Base64 decoded', 'success'); }
+                try {
+                    // Unicode-safe decoding
+                    const cleaned = text.trim().replace(/\s+/g, '');
+                    const bin = atob(cleaned);
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    setText(new TextDecoder().decode(bytes));
+                    showToast('Base64 decoded', 'success');
+                }
                 catch (e) { showToast('Invalid Base64', 'error'); }
             };
             const urlEncode = () => {
@@ -2337,6 +2712,51 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     setText(JSON.stringify(JSON.parse(text)));
                     showToast('JSON minified', 'success');
                 } catch (e) { showToast('Invalid JSON: ' + e.message, 'error'); }
+            };
+
+            // ===== Additional encoders/transformers =====
+            const reverseWords = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.split('\n').map(line => line.split(/(\s+)/).reverse().join('')).join('\n'));
+                showToast('Words reversed per line', 'success');
+            };
+            const capitalizeWords = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/\b\w/g, c => c.toUpperCase()));
+                showToast('Every word capitalized', 'success');
+            };
+            const removeNumbers = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/\d+/g, ''));
+                showToast('Numbers removed', 'success');
+            };
+            const removePunctuation = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/[.,/#!$%^&*;:{}=\-_`~()\[\]"'?<>|\\@+]/g, ''));
+                showToast('Punctuation removed', 'success');
+            };
+            const extractEmails = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const re = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+                const matches = text.match(re) || [];
+                if (matches.length === 0) return showToast('No emails found', 'info');
+                setText([...new Set(matches)].join('\n'));
+                showToast(`Extracted ${matches.length} email${matches.length !== 1 ? 's' : ''}`, 'success');
+            };
+            const extractUrls = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const re = /https?:\/\/[^\s<>"'`]+/g;
+                const matches = text.match(re) || [];
+                if (matches.length === 0) return showToast('No URLs found', 'info');
+                setText([...new Set(matches)].join('\n'));
+                showToast(`Extracted ${matches.length} URL${matches.length !== 1 ? 's' : ''}`, 'success');
+            };
+            const extractNumbers = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const matches = text.match(/-?\d+(?:\.\d+)?/g) || [];
+                if (matches.length === 0) return showToast('No numbers found', 'info');
+                setText(matches.join('\n'));
+                showToast(`Extracted ${matches.length} number${matches.length !== 1 ? 's' : ''}`, 'success');
             };
 
             // ===== Advanced Case =====
@@ -2469,21 +2889,27 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 'download': '⬇️', 'upload': '⬆️', 'save': '💾', 'delete': '🗑️',
                 'recycle': '♻️', 'refresh': '🔄'
             };
-            const reverseEmojiMap = {};
-            Object.entries(emojiMap).forEach(([w, e]) => { if (!reverseEmojiMap[e]) reverseEmojiMap[e] = w; });
+            // Memoize reverse map and sorted keys for performance
+            const reverseEmojiMap = React.useMemo(() => {
+                const m = {};
+                Object.entries(emojiMap).forEach(([w, e]) => { if (!m[e]) m[e] = w; });
+                return m;
+            }, []);
+            const sortedEmojiKeys = React.useMemo(() =>
+                Object.keys(emojiMap).sort((a, b) => b.length - a.length), []);
 
             const convertWordsToEmojis = () => {
                 if (!text.trim()) return showToast('No text', 'warning');
                 showLoadingFor(() => {
                     let c = text, n = 0;
                     const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const sw = Object.keys(emojiMap).sort((a, b) => b.length - a.length);
-                    sw.forEach(w => {
+                    sortedEmojiKeys.forEach(w => {
                         const e = emojiMap[w];
                         const re = new RegExp(`\\b${escRe(w)}\\b`, 'gi');
                         const ms = c.match(re);
                         if (ms) { n += ms.length; c = c.replace(re, e); }
                     });
+                    if (n === 0) { showToast('No matching words found', 'info'); return; }
                     setText(c);
                     showToast(`Converted ${n} word${n !== 1 ? 's' : ''} to emojis 🎉`, 'success');
                 }, 'Converting…');
@@ -2498,6 +2924,7 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         const ms = c.match(re);
                         if (ms) { n += ms.length; c = c.replace(re, w); }
                     });
+                    if (n === 0) { showToast('No matching emojis found', 'info'); return; }
                     setText(c);
                     showToast(`Converted ${n} emoji${n !== 1 ? 's' : ''} to words`, 'success');
                 }, 'Converting…');
@@ -2521,11 +2948,351 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const removeAllEmojis = () => {
                 if (!text.trim()) return showToast('No text', 'warning');
                 showLoadingFor(() => {
-                    const re = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F018}-\u{1F270}]|[\u{238C}-\u{2454}]|[\u{20D0}-\u{20FF}]|[\u{FE0F}]|[\u{200D}]/gu;
-                    setText(text.replace(re, '').replace(/\s+/g, ' ').trim());
+                    // Comprehensive emoji regex covering all major Unicode emoji blocks
+                    const re = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{2B00}-\u{2BFF}]|[\u{FE0F}]|[\u{200D}]|[\u{20E3}]/gu;
+                    const before = text;
+                    const after = text.replace(re, '').replace(/[ \t]+/g, ' ').replace(/ ?\n ?/g, '\n').trim();
+                    if (before === after) { showToast('No emojis found', 'info'); return; }
+                    setText(after);
                     showToast('All emojis removed 🧹', 'success');
                 }, 'Cleaning…');
             };
+
+            // ===== New: Fun Transformations =====
+            const toFullWidth = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/[\u0021-\u007e]/g, c => String.fromCharCode(c.charCodeAt(0) + 0xfee0)).replace(/ /g, '\u3000'));
+                showToast('Converted to full-width', 'success');
+            };
+            const toHalfWidth = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/[\uff01-\uff5e]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, ' '));
+                showToast('Converted to half-width', 'success');
+            };
+            const toSmartQuotes = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                let r = text
+                    .replace(/(^|[\s\(\[\{])"/g, '$1\u201c')
+                    .replace(/"/g, '\u201d')
+                    .replace(/(^|[\s\(\[\{])'/g, '$1\u2018')
+                    .replace(/'/g, '\u2019')
+                    .replace(/--/g, '\u2014')
+                    .replace(/\.{3}/g, '\u2026');
+                setText(r);
+                showToast('Smart quotes applied', 'success');
+            };
+            const toStraightQuotes = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text
+                    .replace(/[\u201c\u201d]/g, '"')
+                    .replace(/[\u2018\u2019]/g, "'")
+                    .replace(/\u2014/g, '--')
+                    .replace(/\u2013/g, '-')
+                    .replace(/\u2026/g, '...'));
+                showToast('Straight quotes applied', 'success');
+            };
+            const removeZeroWidth = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const before = text;
+                const after = text.replace(/[\u200B-\u200D\uFEFF\u2060\u00AD]/g, '');
+                if (before === after) return showToast('No invisible characters found', 'info');
+                setText(after);
+                showToast(`Removed ${before.length - after.length} invisible character${before.length - after.length !== 1 ? 's' : ''}`, 'success');
+            };
+            const removeAccents = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+                showToast('Accents removed', 'success');
+            };
+            const normalizeWhitespace = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text
+                    .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ')
+                    .replace(/[\u2028\u2029]/g, '\n')
+                    .replace(/\r\n?/g, '\n'));
+                showToast('Whitespace normalized', 'success');
+            };
+            const mirrorText = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const map = {'a':'\u0250','b':'q','c':'\u0254','d':'p','e':'\u01dd','f':'\u025f','g':'\u0183','h':'\u0265','i':'\u1d09','j':'\u027e','k':'\u029e','l':'\u05df','m':'\u026f','n':'u','p':'d','q':'b','r':'\u0279','t':'\u0287','u':'n','v':'\u028c','w':'\u028d','y':'\u028e','.':'\u02d9',',':"'",'?':'\u00bf','!':'\u00a1',"'":',','"':',,','(':')',')':'(','[':']',']':'[','{':'}','}':'{','<':'>','>':'<','&':'\u214b','_':'\u203e','\u2234':'\u2235','\u2235':'\u2234'};
+                const flipped = text.toLowerCase().split('').reverse().map(c => map[c] || c).join('');
+                setText(flipped);
+                showToast('Text flipped upside-down', 'success');
+            };
+            const toLeetSpeak = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const map = {'a':'4','b':'8','e':'3','g':'6','i':'1','l':'1','o':'0','s':'5','t':'7','z':'2','A':'4','B':'8','E':'3','G':'6','I':'1','L':'1','O':'0','S':'5','T':'7','Z':'2'};
+                setText(text.split('').map(c => map[c] || c).join(''));
+                showToast('Converted to l33t sp34k', 'success');
+            };
+            const zalgoify = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const above = ['\u030d','\u030e','\u0304','\u0305','\u033f','\u0311','\u0306','\u0310','\u0352','\u0357','\u0351','\u0307','\u0308','\u030a','\u0342','\u0343','\u0344','\u034a','\u034b','\u034c','\u0303','\u0302','\u030c','\u0350','\u0300','\u0301','\u030b','\u030f','\u0312','\u0313','\u0314'];
+                const below = ['\u0316','\u0317','\u0318','\u0319','\u031c','\u031d','\u031e','\u031f','\u0320','\u0324','\u0325','\u0326','\u0329','\u032a','\u032b','\u032c','\u032d','\u032e','\u032f','\u0330','\u0331','\u0332','\u0333','\u0339','\u033a','\u033b','\u033c'];
+                const mid = ['\u0334','\u0335','\u0336','\u0337','\u0338'];
+                const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+                let r = '';
+                for (const c of text) {
+                    r += c;
+                    if (/\S/.test(c)) {
+                        const ups = 1 + Math.floor(Math.random() * 4);
+                        const dns = 1 + Math.floor(Math.random() * 4);
+                        for (let i = 0; i < ups; i++) r += rand(above);
+                        for (let i = 0; i < dns; i++) r += rand(below);
+                        if (Math.random() < 0.3) r += rand(mid);
+                    }
+                }
+                setText(r);
+                showToast('Z̴a̷l̶g̵o̸ ̴a̴p̷p̴l̷i̷e̶d̶', 'success');
+            };
+            const removeCombiningMarks = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const before = text;
+                const after = text.replace(/[\u0300-\u036f\u0483-\u0489\u0591-\u05bd\u05bf\u05c1-\u05c2\u05c4-\u05c5\u05c7\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06dc\u06df-\u06e4\u06e7-\u06e8\u06ea-\u06ed]/g, '');
+                if (before === after) return showToast('No combining marks found', 'info');
+                setText(after);
+                showToast('Combining marks removed', 'success');
+            };
+            const toNatoPhonetic = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const nato = {'A':'Alpha','B':'Bravo','C':'Charlie','D':'Delta','E':'Echo','F':'Foxtrot','G':'Golf','H':'Hotel','I':'India','J':'Juliett','K':'Kilo','L':'Lima','M':'Mike','N':'November','O':'Oscar','P':'Papa','Q':'Quebec','R':'Romeo','S':'Sierra','T':'Tango','U':'Uniform','V':'Victor','W':'Whiskey','X':'X-ray','Y':'Yankee','Z':'Zulu','0':'Zero','1':'One','2':'Two','3':'Three','4':'Four','5':'Five','6':'Six','7':'Seven','8':'Eight','9':'Nine'};
+                setText(text.toUpperCase().split('').map(c => nato[c] || (c === ' ' ? '/' : c)).filter(Boolean).join(' '));
+                showToast('Converted to NATO phonetic', 'success');
+            };
+            const numberToWords = (n) => {
+                const ones = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+                const tens = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+                const scales = ['','thousand','million','billion','trillion'];
+                if (n === 0) return 'zero';
+                if (n < 0) return 'negative ' + numberToWords(-n);
+                const chunk = (m) => {
+                    let s = '';
+                    if (m >= 100) { s += ones[Math.floor(m/100)] + ' hundred'; m %= 100; if (m) s += ' '; }
+                    if (m >= 20) { s += tens[Math.floor(m/10)]; m %= 10; if (m) s += '-' + ones[m]; }
+                    else if (m > 0) s += ones[m];
+                    return s;
+                };
+                let parts = [], i = 0;
+                while (n > 0) {
+                    const c = n % 1000;
+                    if (c) parts.unshift(chunk(c) + (scales[i] ? ' ' + scales[i] : ''));
+                    n = Math.floor(n / 1000); i++;
+                }
+                return parts.join(' ').trim();
+            };
+            const numbersToWordsAll = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/-?\d+/g, (m) => {
+                    const n = parseInt(m, 10);
+                    if (Math.abs(n) > 1e15) return m;
+                    return numberToWords(n);
+                }));
+                showToast('Numbers converted to words', 'success');
+            };
+            const escapeRegex = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                showToast('Regex special characters escaped', 'success');
+            };
+            const escapeQuotes = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'"));
+                showToast('Quotes escaped', 'success');
+            };
+            const unescapeQuotes = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, '\\'));
+                showToast('Quotes unescaped', 'success');
+            };
+            const wrapAsCodeBlock = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText('```\n' + text + '\n```');
+                showToast('Wrapped as Markdown code block', 'success');
+            };
+            const wrapAsQuote = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.split('\n').map(l => '> ' + l).join('\n'));
+                showToast('Wrapped as blockquote', 'success');
+            };
+            const indentText = (spaces = 2) => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const ind = ' '.repeat(spaces);
+                setText(text.split('\n').map(l => ind + l).join('\n'));
+                showToast(`Indented by ${spaces} space${spaces !== 1 ? 's' : ''}`, 'success');
+            };
+            const dedentText = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const lines = text.split('\n');
+                const nonEmpty = lines.filter(l => l.trim());
+                const minIndent = Math.min(...nonEmpty.map(l => (l.match(/^[ \t]*/) || [''])[0].length));
+                if (minIndent === 0) return showToast('Text has no common indent', 'info');
+                setText(lines.map(l => l.slice(minIndent)).join('\n'));
+                showToast(`Dedented by ${minIndent} character${minIndent !== 1 ? 's' : ''}`, 'success');
+            };
+            const tabsToSpaces = () => {
+                if (!text.includes('\t')) return showToast('No tabs found', 'info');
+                setText(text.replace(/\t/g, '    '));
+                showToast('Tabs → spaces', 'success');
+            };
+            const spacesToTabs = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/^( {4})+/gm, (m) => '\t'.repeat(m.length / 4)));
+                showToast('Spaces → tabs', 'success');
+            };
+            const removeBlankLinesBetween = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                setText(text.replace(/\n{3,}/g, '\n\n'));
+                showToast('Collapsed extra blank lines', 'success');
+            };
+            const titleHeadingCase = () => {
+                if (!text.trim()) return showToast('No text', 'warning');
+                const small = new Set(['a','an','and','as','at','but','by','for','if','in','of','on','or','the','to','vs','via','with','nor','so','yet']);
+                setText(text.split('\n').map(line => {
+                    const words = line.split(/(\s+)/);
+                    return words.map((w, i) => {
+                        if (/^\s+$/.test(w)) return w;
+                        const lw = w.toLowerCase();
+                        const isFirst = i === 0;
+                        const isLast = i === words.length - 1;
+                        if (!isFirst && !isLast && small.has(lw)) return lw;
+                        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+                    }).join('');
+                }).join('\n'));
+                showToast('Title-style heading applied', 'success');
+            };
+
+            // ===== New: Generators =====
+            const generatePassword = () => {
+                if (!pwUpper && !pwLower && !pwDigits && !pwSymbols) {
+                    return showToast('Select at least one character class', 'warning');
+                }
+                const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const lower = 'abcdefghijklmnopqrstuvwxyz';
+                const digits = '0123456789';
+                const symbols = '!@#$%^&*()-_=+[]{};:,.<>/?';
+                const ambiguous = /[lI1O0]/g;
+                let charset = '';
+                if (pwUpper) charset += upper;
+                if (pwLower) charset += lower;
+                if (pwDigits) charset += digits;
+                if (pwSymbols) charset += symbols;
+                if (!pwAmbiguous) charset = charset.replace(ambiguous, '');
+                if (!charset.length) return showToast('Charset is empty after filtering', 'error');
+                const buf = new Uint32Array(pwLength);
+                crypto.getRandomValues(buf);
+                const pw = (n) => {
+                    const b = new Uint32Array(n);
+                    crypto.getRandomValues(b);
+                    return Array.from(b, x => charset[x % charset.length]).join('');
+                };
+                const lines = [];
+                for (let i = 0; i < pwCount; i++) lines.push(pw(pwLength));
+                setText(lines.join('\n'));
+                showToast(`Generated ${pwCount} password${pwCount !== 1 ? 's' : ''}`, 'success');
+            };
+            const generateUUIDs = (n = 5) => {
+                const make = () => {
+                    if (crypto.randomUUID) return crypto.randomUUID();
+                    const b = new Uint8Array(16);
+                    crypto.getRandomValues(b);
+                    b[6] = (b[6] & 0x0f) | 0x40;
+                    b[8] = (b[8] & 0x3f) | 0x80;
+                    const h = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+                    return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+                };
+                const lines = [];
+                for (let i = 0; i < n; i++) lines.push(make());
+                setText(lines.join('\n'));
+                showToast(`Generated ${n} UUID${n !== 1 ? 's' : ''}`, 'success');
+            };
+            const generateTimestamps = () => {
+                const now = new Date();
+                const lines = [
+                    `ISO 8601:          ${now.toISOString()}`,
+                    `RFC 2822:          ${now.toUTCString()}`,
+                    `Locale:            ${now.toLocaleString()}`,
+                    `Unix (seconds):    ${Math.floor(now.getTime() / 1000)}`,
+                    `Unix (millis):     ${now.getTime()}`,
+                    `Date only:         ${now.toISOString().slice(0,10)}`,
+                    `Time only:         ${now.toTimeString().slice(0,8)}`,
+                    `Timezone offset:   ${now.toString().match(/GMT([-+]\d{4})/)?.[1] || ''}`
+                ];
+                setText(lines.join('\n'));
+                showToast('Timestamps inserted', 'success');
+            };
+            const insertRandomNumbers = () => {
+                const lines = [];
+                for (let i = 0; i < 10; i++) {
+                    lines.push(Math.floor(Math.random() * 1000000).toString());
+                }
+                setText(lines.join('\n'));
+                showToast('Inserted 10 random numbers', 'success');
+            };
+            const generateColorPalette = () => {
+                const lines = [];
+                for (let i = 0; i < 8; i++) {
+                    const r = Math.floor(Math.random() * 256);
+                    const g = Math.floor(Math.random() * 256);
+                    const b = Math.floor(Math.random() * 256);
+                    const hex = '#' + [r,g,b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+                    lines.push(`${hex}  rgb(${r}, ${g}, ${b})`);
+                }
+                setText(lines.join('\n'));
+                showToast('Random color palette generated', 'success');
+            };
+            const generateNames = () => {
+                const first = ['Alex','Jordan','Taylor','Morgan','Casey','Riley','Avery','Quinn','Sage','Rowan','Skylar','Phoenix','Hayden','Drew','Cameron','Reese','Emerson','Finley','Harper','Kendall'];
+                const last = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Rodriguez','Martinez','Hernandez','Lopez','Gonzalez','Wilson','Anderson','Thomas','Taylor','Moore','Jackson','Martin'];
+                const lines = [];
+                for (let i = 0; i < 10; i++) {
+                    lines.push(first[Math.floor(Math.random()*first.length)] + ' ' + last[Math.floor(Math.random()*last.length)]);
+                }
+                setText(lines.join('\n'));
+                showToast('Random names generated', 'success');
+            };
+
+            // ===== New: Regex Lab =====
+            const runRegex = () => {
+                if (!regexPattern) { setRegexMatches([]); setRegexError(''); return; }
+                try {
+                    const re = new RegExp(regexPattern, regexFlags);
+                    const t = text || '';
+                    const results = [];
+                    if (regexFlags.includes('g')) {
+                        let m, count = 0;
+                        while ((m = re.exec(t)) !== null && count < 500) {
+                            results.push({ index: m.index, match: m[0], groups: m.slice(1) });
+                            if (m.index === re.lastIndex) re.lastIndex++;
+                            count++;
+                        }
+                    } else {
+                        const m = re.exec(t);
+                        if (m) results.push({ index: m.index, match: m[0], groups: m.slice(1) });
+                    }
+                    setRegexMatches(results);
+                    setRegexError('');
+                } catch (e) {
+                    setRegexError(e.message);
+                    setRegexMatches([]);
+                }
+            };
+            React.useEffect(() => { runRegex(); }, [regexPattern, regexFlags, text]);
+
+            const applyRegexReplace = () => {
+                if (!regexPattern) return showToast('Enter a pattern first', 'warning');
+                try {
+                    const re = new RegExp(regexPattern, regexFlags);
+                    setText(text.replace(re, regexReplacement));
+                    showToast('Replacement applied', 'success');
+                } catch (e) { showToast('Invalid regex: ' + e.message, 'error'); }
+            };
+
+            // ===== New: Auto-save indicator =====
+            React.useEffect(() => {
+                if (!autoSaveEnabled) return;
+                const t = setTimeout(() => setLastSavedAt(new Date()), 600);
+                return () => clearTimeout(t);
+            }, [tabs, autoSaveEnabled]);
 
             // ===== Utilities =====
             const copyToClipboard = async () => {
@@ -2588,6 +3355,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 a.href = url; a.download = filename;
                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+                // Clear dirty flag on save
+                setTabs(prev => prev.map(t => t.id === activeTab ? { ...t, dirty: false } : t));
                 showToast(`Saved as ${filename}`, 'success');
             };
             const saveAsTxt = () => saveTextAsFile(text, 'manipulated_text.txt', 'text/plain');
@@ -2661,7 +3430,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             };
             const saveAsRtf = () => {
                 if (!text.trim()) return showToast('No text', 'warning');
-                const rtf = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\n\\f0\\fs24 ${text.replace(/\n/g, '\\par ')}}`;
+                // Properly escape RTF special characters and unicode
+                const escapeRtf = (s) => s
+                    .replace(/\\/g, '\\\\')
+                    .replace(/\{/g, '\\{')
+                    .replace(/\}/g, '\\}')
+                    .replace(/[\u0080-\uffff]/g, (c) => `\\u${c.charCodeAt(0)}?`);
+                const body = escapeRtf(text).replace(/\n/g, '\\par\n');
+                const rtf = `{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}\n\\viewkind4\\uc1\\pard\\f0\\fs22 ${body}\\par\n}`;
                 saveTextAsFile(rtf, 'manipulated_text.rtf', 'application/rtf');
             };
             const shareViaEmail = () => {
@@ -2676,12 +3452,28 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 showToast('Saving as RTF (Word-compatible format)…', 'info');
                 saveAsRtf();
             };
+            // Save active editor (auto-detect best format based on content)
+            const saveCurrentSmart = () => {
+                if (!text.trim()) return showToast('No text to save', 'warning');
+                const tr = text.trim();
+                // Heuristic: JSON → .json, has markdown headings/lists → .md, otherwise .txt
+                if ((tr.startsWith('{') && tr.endsWith('}')) || (tr.startsWith('[') && tr.endsWith(']'))) {
+                    try { JSON.parse(tr); return saveTextAsFile(text, `${(currentTab?.name || 'document').replace(/[^a-z0-9-_]+/gi, '_')}.json`, 'application/json'); } catch (e) {}
+                }
+                if (/^#{1,6}\s|^\*\s|^-\s|^\d+\.\s/m.test(text)) {
+                    return saveTextAsFile(text, `${(currentTab?.name || 'document').replace(/[^a-z0-9-_]+/gi, '_')}.md`, 'text/markdown');
+                }
+                saveTextAsFile(text, `${(currentTab?.name || 'document').replace(/[^a-z0-9-_]+/gi, '_')}.txt`, 'text/plain');
+            };
             const printText = () => {
                 if (!text.trim()) return showToast('No text', 'warning');
                 const w = window.open('', '_blank');
                 if (!w) return showToast('Popup blocked — please allow popups', 'error');
-                w.document.write(`<html><head><title>Print — ${currentTab?.name || 'Document'}</title><style>body{font-family:Arial;margin:40px;line-height:1.6;color:#0f172a}.c{white-space:pre-wrap}h1{border-bottom:2px solid #3b82f6;padding-bottom:8px}.meta{font-size:11px;color:#64748b;margin-bottom:18px}</style></head><body><h1>${currentTab?.name || 'Text Manipulator Export'}</h1><div class="meta">Printed: ${new Date().toLocaleString()} · ${wordCount} words · ${characterCount} characters</div><div class="c">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div></body></html>`);
-                w.document.close(); setTimeout(() => w.print(), 250);
+                const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const title = esc(currentTab?.name || 'Document');
+                w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print — ${title}</title><style>@media print{@page{margin:1in}}body{font-family:'Helvetica Neue',Arial,sans-serif;margin:40px;line-height:1.6;color:#0f172a}.c{white-space:pre-wrap;font-size:13px}h1{border-bottom:2px solid #3b82f6;padding-bottom:8px;margin-top:0}.meta{font-size:11px;color:#64748b;margin-bottom:18px}</style></head><body><h1>${title}</h1><div class="meta">Printed: ${esc(new Date().toLocaleString())} · ${wordCount} words · ${characterCount} characters</div><div class="c">${esc(text)}</div></body></html>`);
+                w.document.close();
+                setTimeout(() => { try { w.print(); } catch (e) {} }, 350);
                 showToast('Print dialog opened', 'info');
             };
 
@@ -2712,12 +3504,18 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const handleFileUpload = (event) => {
                 const file = event.target.files[0]; if (!file) return;
                 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+                if (file.size === 0) {
+                    if (event.target) event.target.value = '';
+                    return showToast('File is empty', 'warning');
+                }
                 if (file.size > MAX_SIZE) {
+                    if (event.target) event.target.value = '';
                     return showToast(`File too large (${formatFileSize(file.size)} > 10 MB)`, 'error');
                 }
                 const r = new FileReader();
-                const ext = file.name.split('.').pop().toLowerCase();
-                const baseName = file.name.replace(/\.[^.]+$/, '');
+                r.onerror = () => showToast('Could not read file', 'error');
+                const ext = (file.name.split('.').pop() || '').toLowerCase();
+                const baseName = file.name.replace(/\.[^.]+$/, '') || 'document';
                 setDocumentMetadata({
                     name: file.name, size: file.size, type: file.type, extension: ext,
                     lastModified: new Date(file.lastModified).toLocaleString(),
@@ -2744,6 +3542,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         }
                         setShowMetadata(true);
                     } catch (er) { showToast('Read error: ' + er.message, 'error'); }
+                    // Reset input so the same file can be re-uploaded
+                    if (event.target) event.target.value = '';
                 };
                 r.readAsText(file);
             };
@@ -2779,7 +3579,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 let c = ''; const ts = new Date().toISOString();
                 switch (fmt) {
                     case 'markdown':
-                        c = text.split('\n').map(l => l.trim() === '' ? '' : (l.length > 50 && !l.includes('.') && !l.includes(',') ? `# ${l}` : l)).join('\n');
+                        // Heuristic: short standalone lines without ending punctuation are likely headings
+                        c = text.split('\n').map((l, idx, arr) => {
+                            const tr = l.trim();
+                            if (tr === '') return '';
+                            // Heading: short line, no sentence-ending punctuation, surrounded by blanks or at boundaries
+                            const prev = arr[idx - 1] || '';
+                            const next = arr[idx + 1] || '';
+                            const isBoundary = prev.trim() === '' && next.trim() === '';
+                            if (isBoundary && tr.length > 0 && tr.length <= 80 && !/[.!?:;,]\s*$/.test(tr)) {
+                                return `# ${tr}`;
+                            }
+                            return l;
+                        }).join('\n');
                         break;
                     case 'html':
                         c = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^(.*)$/, '<p>$1</p>');
@@ -2843,18 +3655,17 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 else showToast(`✗ Invalid: ${errs.join(', ')}`, 'error');
             };
 
-            // Stats
-            const getCurrentText = () => quillInstance ? quillInstance.getText() : text;
-            const currentText = getCurrentText();
+            // Stats - use React state as source of truth (avoids reading from DOM during render)
+            const currentText = text;
             const stats = React.useMemo(() => {
                 const cc = currentText.length;
                 const ccNoSpace = currentText.replace(/\s/g, '').length;
-                const ws = currentText.match(/\b\w+\b/g);
+                const ws = currentText.match(/\b[\w']+\b/g);
                 const wc = ws ? ws.length : 0;
                 const lc = currentText.split('\n').length;
                 const ps = currentText.split(/\n\s*\n/).filter(p => p.trim() !== '');
                 const pc = ps.length || (currentText.trim() ? 1 : 0);
-                const sentences = currentText.split(/[.!?]+\s+/).filter(s => s.trim().length > 0);
+                const sentences = currentText.split(/[.!?]+(?:\s+|$)/).filter(s => s.trim().length > 0);
                 const sc = sentences.length || (currentText.trim() ? 1 : 0);
                 const avgWordLen = wc > 0 ? (ws.reduce((a, w) => a + w.length, 0) / wc) : 0;
                 const avgSentLen = sc > 0 ? (wc / sc) : 0;
@@ -2865,14 +3676,66 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 if (ws) ws.forEach(w => { if (w.length > longestWord.length) longestWord = w; });
                 // Word frequency
                 const freq = {};
+                const stopwords = new Set(['the','a','an','and','or','but','if','of','to','in','on','at','by','for','with','as','is','are','was','were','be','been','being','have','has','had','do','does','did','it','its','this','that','these','those','i','you','he','she','we','they','my','your','his','her','our','their','me','him','us','them','from','not','no','so','too','very','can','will','just','should','now']);
                 if (ws) ws.forEach(w => { const lw = w.toLowerCase(); freq[lw] = (freq[lw] || 0) + 1; });
                 const topWords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8);
+                const topContentWords = Object.entries(freq).filter(([w]) => !stopwords.has(w) && w.length > 2).sort((a, b) => b[1] - a[1]).slice(0, 10);
                 const uniqueWords = Object.keys(freq).length;
+
+                // Syllable estimation for Flesch
+                const countSyllables = (w) => {
+                    w = w.toLowerCase().replace(/[^a-z]/g, '');
+                    if (!w) return 0;
+                    if (w.length <= 3) return 1;
+                    w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');
+                    const matches = w.match(/[aeiouy]{1,2}/g);
+                    return matches ? matches.length : 1;
+                };
+                let totalSyllables = 0;
+                if (ws) ws.forEach(w => totalSyllables += countSyllables(w));
+                const flesch = (wc > 0 && sc > 0)
+                    ? 206.835 - 1.015 * (wc / sc) - 84.6 * (totalSyllables / wc)
+                    : 0;
+                let readingLevel = '—';
+                if (wc > 0) {
+                    if (flesch >= 90) readingLevel = 'Very Easy (5th grade)';
+                    else if (flesch >= 80) readingLevel = 'Easy (6th grade)';
+                    else if (flesch >= 70) readingLevel = 'Fairly Easy (7th grade)';
+                    else if (flesch >= 60) readingLevel = 'Standard (8–9th grade)';
+                    else if (flesch >= 50) readingLevel = 'Fairly Difficult (10–12th)';
+                    else if (flesch >= 30) readingLevel = 'Difficult (College)';
+                    else readingLevel = 'Very Difficult (Graduate)';
+                }
+
+                // Character frequency
+                const charFreq = {};
+                for (const c of currentText) {
+                    if (/[a-zA-Z]/.test(c)) {
+                        const lc2 = c.toLowerCase();
+                        charFreq[lc2] = (charFreq[lc2] || 0) + 1;
+                    }
+                }
+                const charHistogram = Object.entries(charFreq).sort((a, b) => b[1] - a[1]).slice(0, 12);
+
+                // Language hint heuristic (very rough)
+                let lang = '—';
+                if (wc > 0) {
+                    const en = (ws || []).filter(w => stopwords.has(w.toLowerCase())).length;
+                    if (en / wc > 0.10) lang = 'English (likely)';
+                    else if (/[\u4e00-\u9fff]/.test(currentText)) lang = 'CJK characters';
+                    else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(currentText)) lang = 'Japanese';
+                    else if (/[\u0400-\u04ff]/.test(currentText)) lang = 'Cyrillic';
+                    else if (/[\u0600-\u06ff]/.test(currentText)) lang = 'Arabic';
+                    else lang = 'Unknown';
+                }
+
                 return {
                     characterCount: cc, charactersNoSpace: ccNoSpace, wordCount: wc, lineCount: lc,
                     paragraphCount: pc, sentenceCount: sc, avgWordLength: avgWordLen,
                     avgSentenceLength: avgSentLen, readingMin, speakingMin,
-                    longestWord, topWords, uniqueWords
+                    longestWord, topWords, uniqueWords,
+                    flesch: flesch.toFixed(1), readingLevel, totalSyllables,
+                    charHistogram, topContentWords, lang
                 };
             }, [currentText]);
             const { characterCount, wordCount, lineCount, paragraphCount } = stats;
@@ -2904,10 +3767,22 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                         <button onClick={() => { if(quillInstance){const t=quillInstance.getText();if(!t.trim())return showToast('No text','warning');quillInstance.off('text-change');quillInstance.setText(t.replace(/\s+/g,' ').trim());quillInstance.on('text-change',handleTextChange);showToast('Extra spaces removed','success');}}} className="action-btn btn-teal"><span className="icon-wrap"><i className="fas fa-compress"></i></span><span>Remove Spaces</span></button>
                                         <button onClick={() => { if(quillInstance){const t=quillInstance.getText();if(!t.trim())return showToast('No text','warning');quillInstance.off('text-change');quillInstance.setText(t.split('').reverse().join(''));quillInstance.on('text-change',handleTextChange);showToast('Text reversed','success');}}} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-arrow-rotate-left"></i></span><span>Reverse Text</span></button>
                                         <button onClick={removeHtmlTags} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-code"></i></span><span>Strip HTML</span></button>
+                                        <button onClick={capitalizeWords} className="action-btn btn-fuchsia"><span className="icon-wrap"><i className="fas fa-text-height"></i></span><span>Capitalize Words</span></button>
+                                        <button onClick={reverseWords} className="action-btn btn-pink"><span className="icon-wrap"><i className="fas fa-right-left"></i></span><span>Reverse Words</span></button>
+                                        <button onClick={removeNumbers} className="action-btn btn-amber"><span className="icon-wrap"><i className="fas fa-hashtag"></i></span><span>Remove Numbers</span></button>
+                                        <button onClick={removePunctuation} className="action-btn btn-orange"><span className="icon-wrap"><i className="fas fa-quote-right"></i></span><span>Remove Punctuation</span></button>
                                         <button onClick={undo} className="action-btn btn-indigo"><span className="icon-wrap"><i className="fas fa-rotate-left"></i></span><span>Undo</span></button>
                                         <button onClick={redo} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-rotate-right"></i></span><span>Redo</span></button>
                                         <button onClick={copyToClipboard} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-copy"></i></span><span>Copy All</span></button>
                                         <button onClick={clearText} className="action-btn btn-rose"><span className="icon-wrap"><i className="fas fa-trash"></i></span><span>Clear Text</span></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="section-h"><span className="dot"></span><i className="fas fa-magnifying-glass-chart" style={{ color: '#06b6d4' }}></i>Extract from Text</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
+                                        <button onClick={extractEmails} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-at"></i></span><span>Extract Emails</span></button>
+                                        <button onClick={extractUrls} className="action-btn btn-sky"><span className="icon-wrap"><i className="fas fa-link"></i></span><span>Extract URLs</span></button>
+                                        <button onClick={extractNumbers} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-1"></i></span><span>Extract Numbers</span></button>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -3146,6 +4021,354 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                 </div>
                             </div>
                         );
+                    case 'transform':
+                        return (
+                            <div className="stack-md">
+                                <div className="info-banner">
+                                    <i className="fas fa-wand-sparkles info-icon"></i>
+                                    <div><strong>Fun Transforms:</strong> stylize, mirror and obfuscate text with creative transformations.</div>
+                                </div>
+                                <div>
+                                    <div className="section-h"><span className="dot"></span><i className="fas fa-wand-sparkles" style={{ color: '#a855f7' }}></i>Stylized Text</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        <button onClick={mirrorText} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-arrows-up-down"></i></span><span>Upside-Down</span></button>
+                                        <button onClick={toLeetSpeak} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-keyboard"></i></span><span>L33t Sp34k</span></button>
+                                        <button onClick={zalgoify} className="action-btn btn-rose"><span className="icon-wrap"><i className="fas fa-skull"></i></span><span>Zalgo Text</span></button>
+                                        <button onClick={removeCombiningMarks} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-broom"></i></span><span>De-Zalgo</span></button>
+                                        <button onClick={toNatoPhonetic} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-tower-broadcast"></i></span><span>NATO Phonetic</span></button>
+                                        <button onClick={titleHeadingCase} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-heading"></i></span><span>Title-Style</span></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="section-h"><span className="dot"></span><i className="fas fa-quote-right" style={{ color: '#f59e0b' }}></i>Typography &amp; Width</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        <button onClick={toSmartQuotes} className="action-btn btn-amber"><span className="icon-wrap"><i className="fas fa-quote-left"></i></span><span>Smart Quotes</span></button>
+                                        <button onClick={toStraightQuotes} className="action-btn btn-orange"><span className="icon-wrap"><i className="fas fa-quote-right"></i></span><span>Straight Quotes</span></button>
+                                        <button onClick={toFullWidth} className="action-btn btn-fuchsia"><span className="icon-wrap"><i className="fas fa-arrows-left-right"></i></span><span>Full-Width</span></button>
+                                        <button onClick={toHalfWidth} className="action-btn btn-pink"><span className="icon-wrap"><i className="fas fa-compress"></i></span><span>Half-Width</span></button>
+                                        <button onClick={removeAccents} className="action-btn btn-teal"><span className="icon-wrap"><i className="fas fa-language"></i></span><span>Remove Accents</span></button>
+                                        <button onClick={normalizeWhitespace} className="action-btn btn-sky"><span className="icon-wrap"><i className="fas fa-arrows-to-circle"></i></span><span>Normalize Spaces</span></button>
+                                        <button onClick={removeZeroWidth} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-ghost"></i></span><span>Remove ZWS</span></button>
+                                        <button onClick={removeBlankLinesBetween} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-arrows-to-eye"></i></span><span>Collapse Blanks</span></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="section-h"><span className="dot"></span><i className="fas fa-indent" style={{ color: '#10b981' }}></i>Indentation &amp; Wrapping</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        <button onClick={() => indentText(2)} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-indent"></i></span><span>Indent +2</span></button>
+                                        <button onClick={() => indentText(4)} className="action-btn btn-teal"><span className="icon-wrap"><i className="fas fa-indent"></i></span><span>Indent +4</span></button>
+                                        <button onClick={dedentText} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-outdent"></i></span><span>Dedent</span></button>
+                                        <button onClick={tabsToSpaces} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-arrow-right"></i></span><span>Tabs → Spaces</span></button>
+                                        <button onClick={spacesToTabs} className="action-btn btn-sky"><span className="icon-wrap"><i className="fas fa-arrow-left"></i></span><span>Spaces → Tabs</span></button>
+                                        <button onClick={wrapAsCodeBlock} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-code"></i></span><span>Wrap as Code</span></button>
+                                        <button onClick={wrapAsQuote} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-quote-left"></i></span><span>Wrap as Quote</span></button>
+                                        <button onClick={numbersToWordsAll} className="action-btn btn-amber"><span className="icon-wrap"><i className="fas fa-spell-check"></i></span><span>Numbers → Words</span></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="section-h"><span className="dot"></span><i className="fas fa-shield-halved" style={{ color: '#06b6d4' }}></i>Escape &amp; Quote</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        <button onClick={escapeRegex} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-asterisk"></i></span><span>Escape Regex</span></button>
+                                        <button onClick={escapeQuotes} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-quote-right"></i></span><span>Escape Quotes</span></button>
+                                        <button onClick={unescapeQuotes} className="action-btn btn-sky"><span className="icon-wrap"><i className="fas fa-quote-left"></i></span><span>Unescape Quotes</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    case 'generators':
+                        return (
+                            <div className="stack-md">
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}><i className="fas fa-key"></i></span>
+                                        Password Generator
+                                        <span className="panel-subtitle">Cryptographically secure</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <label className="field-label">Length: {pwLength}</label>
+                                            <input type="range" min="4" max="128" className="w-full" value={pwLength} onChange={(e) => setPwLength(parseInt(e.target.value))} />
+                                        </div>
+                                        <div>
+                                            <label className="field-label">Count (1–50)</label>
+                                            <input type="number" min="1" max="50" className="input" value={pwCount} onChange={(e) => setPwCount(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))} />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 mb-3">
+                                        <label className="check-row"><input type="checkbox" checked={pwUpper} onChange={(e) => setPwUpper(e.target.checked)} /><span>A-Z</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={pwLower} onChange={(e) => setPwLower(e.target.checked)} /><span>a-z</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={pwDigits} onChange={(e) => setPwDigits(e.target.checked)} /><span>0-9</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={pwSymbols} onChange={(e) => setPwSymbols(e.target.checked)} /><span>!@#$</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={pwAmbiguous} onChange={(e) => setPwAmbiguous(e.target.checked)} /><span>Allow l/I/1/O/0</span></label>
+                                    </div>
+                                    <button onClick={generatePassword} className="action-btn btn-rose" style={{ width: '100%' }}>
+                                        <span className="icon-wrap"><i className="fas fa-key"></i></span>
+                                        <span>Generate {pwCount} Password{pwCount !== 1 ? 's' : ''}</span>
+                                    </button>
+                                </div>
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-fingerprint"></i></span>
+                                        Random Generators
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        <button onClick={() => generateUUIDs(5)} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-fingerprint"></i></span><span>5 UUIDs</span></button>
+                                        <button onClick={() => generateUUIDs(20)} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-fingerprint"></i></span><span>20 UUIDs</span></button>
+                                        <button onClick={generateTimestamps} className="action-btn btn-cyan"><span className="icon-wrap"><i className="fas fa-clock"></i></span><span>Timestamps</span></button>
+                                        <button onClick={insertRandomNumbers} className="action-btn btn-amber"><span className="icon-wrap"><i className="fas fa-dice"></i></span><span>Random Numbers</span></button>
+                                        <button onClick={generateColorPalette} className="action-btn btn-fuchsia"><span className="icon-wrap"><i className="fas fa-palette"></i></span><span>Color Palette</span></button>
+                                        <button onClick={generateNames} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-user-group"></i></span><span>Random Names</span></button>
+                                    </div>
+                                </div>
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-paragraph"></i></span>
+                                        Lorem Ipsum
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <label className="field-label">Paragraphs (1–20)</label>
+                                            <input type="number" min="1" max="20" className="input" value={loremParagraphs} onChange={(e) => setLoremParagraphs(parseInt(e.target.value) || 3)} />
+                                        </div>
+                                        <div>
+                                            <label className="field-label">Words per Paragraph (10–200)</label>
+                                            <input type="number" min="10" max="200" className="input" value={loremWordsPerParagraph} onChange={(e) => setLoremWordsPerParagraph(parseInt(e.target.value) || 50)} />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <button onClick={() => generateLoremIpsum(loremParagraphs, loremWordsPerParagraph)} className="action-btn btn-indigo"><span className="icon-wrap"><i className="fas fa-wand-magic-sparkles"></i></span><span>Generate</span></button>
+                                        <button onClick={() => generateLoremIpsum(1, 30)} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-bolt"></i></span><span>Quick Short</span></button>
+                                        <button onClick={() => generateLoremIpsum(5, 80)} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-file-lines"></i></span><span>Quick Long</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    case 'regex':
+                        return (
+                            <div className="stack-md">
+                                <div className="info-banner">
+                                    <i className="fas fa-asterisk info-icon"></i>
+                                    <div><strong>Regex Lab:</strong> live-test patterns against the editor text. Use capture groups <code style={{background:'var(--surface-2)', padding:'1px 4px', borderRadius:3, fontSize:11}}>($1, $2)</code> in the replacement.</div>
+                                </div>
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                                        <div className="md:col-span-3">
+                                            <label className="field-label">Pattern</label>
+                                            <input className="input" style={{ fontFamily: "'JetBrains Mono', monospace" }} value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} placeholder="e.g., \\b[a-z]+@[a-z]+\\.[a-z]+\\b" />
+                                        </div>
+                                        <div>
+                                            <label className="field-label">Flags</label>
+                                            <input className="input" style={{ fontFamily: "'JetBrains Mono', monospace" }} value={regexFlags} onChange={(e) => setRegexFlags(e.target.value.replace(/[^gimsuy]/g, ''))} placeholder="gim" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                                        <div className="md:col-span-3">
+                                            <label className="field-label">Replacement</label>
+                                            <input className="input" style={{ fontFamily: "'JetBrains Mono', monospace" }} value={regexReplacement} onChange={(e) => setRegexReplacement(e.target.value)} placeholder="e.g., [$1] or empty to remove" />
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                            <button onClick={applyRegexReplace} className="action-btn btn-emerald" style={{ width: '100%' }}>
+                                                <span className="icon-wrap"><i className="fas fa-bolt"></i></span>
+                                                <span>Apply Replace</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: 12, color: regexError ? '#ef4444' : 'var(--text-soft)', marginBottom: 10 }}>
+                                        {regexError ? (<><i className="fas fa-triangle-exclamation"></i> {regexError}</>) :
+                                          (<><i className="fas fa-circle-info"></i> {regexMatches.length} match{regexMatches.length !== 1 ? 'es' : ''} (showing up to 500)</>)}
+                                    </div>
+                                    {regexMatches.length > 0 && (
+                                        <div className="custom-scrollbar" style={{ maxHeight: 240, overflowY: 'auto', background: 'var(--surface-2)', borderRadius: 8, padding: 8 }}>
+                                            {regexMatches.slice(0, 100).map((m, i) => (
+                                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', fontSize: 12, fontFamily: "'JetBrains Mono', monospace", borderBottom: i < regexMatches.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                                                    <span style={{ color: 'var(--text-mute)', minWidth: 50 }}>#{i + 1}</span>
+                                                    <span style={{ color: 'var(--text-mute)', minWidth: 60 }}>@{m.index}</span>
+                                                    <span style={{ color: '#3b82f6', fontWeight: 600, wordBreak: 'break-all' }}>{m.match.length > 80 ? m.match.slice(0, 80) + '…' : m.match}</span>
+                                                    {m.groups.length > 0 && (
+                                                        <span style={{ color: 'var(--text-mute)', fontSize: 11, marginLeft: 'auto' }}>
+                                                            {m.groups.map((g, gi) => g != null ? `$${gi+1}=${g.slice(0,20)}` : '').filter(Boolean).join('  ')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {regexMatches.length > 100 && (
+                                                <div style={{ padding: 8, fontSize: 11, color: 'var(--text-mute)', textAlign: 'center' }}>
+                                                    +{regexMatches.length - 100} more not shown
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="info-banner success">
+                                    <i className="fas fa-lightbulb info-icon"></i>
+                                    <ul className="ex-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                        <li><strong>Email:</strong> <code>\b[\w.+-]+@[\w.-]+\.[a-z]{'{2,}'}\b</code></li>
+                                        <li><strong>URL:</strong> <code>https?:\/\/\S+</code></li>
+                                        <li><strong>Hex color:</strong> <code>#[0-9a-f]{'{3,8}'}\b</code></li>
+                                        <li><strong>Whitespace runs:</strong> <code>\s{'{2,}'}</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        );
+                    case 'diff':
+                        return (() => {
+                            const others = tabs.filter(t => t.id !== activeTab);
+                            const otherId = diffOtherTab && others.some(t => t.id === diffOtherTab) ? diffOtherTab : (others[0]?.id);
+                            const otherTab = otherId ? tabs.find(t => t.id === otherId) : null;
+                            const a = text || '';
+                            const b = otherTab?.text || '';
+                            const aLines = a.split('\n');
+                            const bLines = b.split('\n');
+                            // Simple LCS-based line diff
+                            const m = aLines.length, nl = bLines.length;
+                            const dp = Array.from({ length: m + 1 }, () => new Int32Array(nl + 1));
+                            for (let i = m - 1; i >= 0; i--) {
+                                for (let j = nl - 1; j >= 0; j--) {
+                                    if (aLines[i] === bLines[j]) dp[i][j] = dp[i+1][j+1] + 1;
+                                    else dp[i][j] = Math.max(dp[i+1][j], dp[i][j+1]);
+                                }
+                            }
+                            const rows = [];
+                            let i = 0, j = 0;
+                            while (i < m && j < nl) {
+                                if (aLines[i] === bLines[j]) { rows.push({ type: 'same', a: aLines[i], b: bLines[j] }); i++; j++; }
+                                else if (dp[i+1][j] >= dp[i][j+1]) { rows.push({ type: 'del', a: aLines[i], b: '' }); i++; }
+                                else { rows.push({ type: 'add', a: '', b: bLines[j] }); j++; }
+                            }
+                            while (i < m) { rows.push({ type: 'del', a: aLines[i++], b: '' }); }
+                            while (j < nl) { rows.push({ type: 'add', a: '', b: bLines[j++] }); }
+                            const adds = rows.filter(r => r.type === 'add').length;
+                            const dels = rows.filter(r => r.type === 'del').length;
+
+                            return (
+                                <div className="stack-md">
+                                    <div className="info-banner">
+                                        <i className="fas fa-code-compare info-icon"></i>
+                                        <div><strong>Text Diff:</strong> compare the current tab with another tab. Line-level LCS-based diff.</div>
+                                    </div>
+                                    <div className="card" style={{ padding: '14px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                            <div style={{ flex: 1, minWidth: 200 }}>
+                                                <label className="field-label">Compare current tab with</label>
+                                                {others.length === 0 ? (
+                                                    <div style={{ fontSize: 12, color: 'var(--text-mute)', padding: '8px 0' }}>
+                                                        <i className="fas fa-circle-info"></i> Create another tab to compare.
+                                                    </div>
+                                                ) : (
+                                                    <select className="input" value={otherId || ''} onChange={(e) => setDiffOtherTab(parseInt(e.target.value))}>
+                                                        {others.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                                    </select>
+                                                )}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: 8 }}>
+                                                <span className="doc-chip" style={{ borderLeft: '3px solid #10b981' }}><span className="label">Added</span><span className="value" style={{ color: '#10b981', fontWeight: 700 }}>+{adds}</span></span>
+                                                <span className="doc-chip" style={{ borderLeft: '3px solid #ef4444' }}><span className="label">Removed</span><span className="value" style={{ color: '#ef4444', fontWeight: 700 }}>−{dels}</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {otherTab && (
+                                        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid var(--border)' }}>
+                                                <div style={{ padding: '10px 14px', fontSize: 12, fontWeight: 600, borderRight: '1px solid var(--border)' }}>
+                                                    <i className="fas fa-file-lines" style={{ color: '#ef4444', marginRight: 6 }}></i>
+                                                    {currentTab?.name} (current)
+                                                </div>
+                                                <div style={{ padding: '10px 14px', fontSize: 12, fontWeight: 600 }}>
+                                                    <i className="fas fa-file-lines" style={{ color: '#10b981', marginRight: 6 }}></i>
+                                                    {otherTab.name}
+                                                </div>
+                                            </div>
+                                            <div className="custom-scrollbar" style={{ maxHeight: 500, overflowY: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, lineHeight: 1.5 }}>
+                                                {rows.length === 0 ? (
+                                                    <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-mute)' }}>(both empty)</div>
+                                                ) : rows.slice(0, 1000).map((r, i) => (
+                                                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid var(--border)' }}>
+                                                        <div style={{
+                                                            padding: '4px 14px', borderRight: '1px solid var(--border)',
+                                                            background: r.type === 'del' ? 'rgba(239,68,68,0.10)' : (r.type === 'same' ? 'transparent' : 'var(--surface-2)'),
+                                                            color: r.type === 'del' ? '#dc2626' : 'var(--text)',
+                                                            whiteSpace: 'pre-wrap', wordBreak: 'break-word'
+                                                        }}>
+                                                            {r.type === 'del' ? '− ' : ''}{r.a || '\u00A0'}
+                                                        </div>
+                                                        <div style={{
+                                                            padding: '4px 14px',
+                                                            background: r.type === 'add' ? 'rgba(16,185,129,0.10)' : (r.type === 'same' ? 'transparent' : 'var(--surface-2)'),
+                                                            color: r.type === 'add' ? '#059669' : 'var(--text)',
+                                                            whiteSpace: 'pre-wrap', wordBreak: 'break-word'
+                                                        }}>
+                                                            {r.type === 'add' ? '+ ' : ''}{r.b || '\u00A0'}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {rows.length > 1000 && (
+                                                    <div style={{ padding: 12, textAlign: 'center', fontSize: 11, color: 'var(--text-mute)' }}>
+                                                        +{rows.length - 1000} more rows not shown
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })();
+                    case 'settings':
+                        return (
+                            <div className="stack-md">
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-text-height"></i></span>
+                                        Editor Appearance
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="field-label">Font Size: {editorFontSize}px</label>
+                                            <input type="range" min="10" max="28" className="w-full" value={editorFontSize} onChange={(e) => setEditorFontSize(parseInt(e.target.value))} />
+                                        </div>
+                                        <div>
+                                            <label className="field-label">Font Family</label>
+                                            <select className="input" value={editorFontFamily} onChange={(e) => setEditorFontFamily(e.target.value)}>
+                                                <option value="Inter">Inter (Sans)</option>
+                                                <option value="Serif">Georgia (Serif)</option>
+                                                <option value="Mono">JetBrains Mono</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="field-label">Line Height: {editorLineHeight}</label>
+                                            <input type="range" min="1.2" max="2.4" step="0.05" className="w-full" value={editorLineHeight} onChange={(e) => setEditorLineHeight(parseFloat(e.target.value))} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}><i className="fas fa-gear"></i></span>
+                                        Behavior
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <label className="check-row"><input type="checkbox" checked={autoSaveEnabled} onChange={(e) => setAutoSaveEnabled(e.target.checked)} /><span>Auto-save tabs to local storage</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={confirmDestructive} onChange={(e) => setConfirmDestructive(e.target.checked)} /><span>Confirm destructive actions (close, clear)</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={spellCheck} onChange={(e) => setSpellCheck(e.target.checked)} /><span>Enable browser spell-check in editor</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={wordWrap} onChange={(e) => setWordWrap(e.target.checked)} /><span>Word wrap (long lines)</span></label>
+                                        <label className="check-row"><input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} /><span>Dark mode</span></label>
+                                    </div>
+                                </div>
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7' }}><i className="fas fa-circle-info"></i></span>
+                                        About &amp; Help
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <button onClick={() => setShortcutsOpen(true)} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-keyboard"></i></span><span>Keyboard Shortcuts</span></button>
+                                        <button onClick={() => setAboutOpen(true)} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-circle-info"></i></span><span>About</span></button>
+                                        <button onClick={clearStorage} className="action-btn btn-rose"><span className="icon-wrap"><i className="fas fa-eraser"></i></span><span>Reset All Tabs</span></button>
+                                    </div>
+                                </div>
+                                <div className="info-banner">
+                                    <i className="fas fa-circle-info info-icon"></i>
+                                    <div>Settings are saved to your browser&apos;s local storage and persist between sessions.</div>
+                                </div>
+                            </div>
+                        );
                     case 'stats':
                         return (
                             <div className="stack-md">
@@ -3162,11 +4385,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                         { label: 'Sentences', value: stats.sentenceCount, icon: 'fa-paragraph', color: '#f59e0b' },
                                         { label: 'Paragraphs', value: stats.paragraphCount, icon: 'fa-align-left', color: '#06b6d4' },
                                         { label: 'Lines', value: stats.lineCount, icon: 'fa-list', color: '#818cf8' },
+                                        { label: 'Syllables', value: stats.totalSyllables, icon: 'fa-music', color: '#a855f7' },
                                         { label: 'Avg word length', value: stats.avgWordLength.toFixed(1), icon: 'fa-ruler', color: '#14b8a6' },
                                         { label: 'Avg sentence', value: stats.avgSentenceLength.toFixed(1) + ' w', icon: 'fa-ruler-horizontal', color: '#ec4899' },
                                         { label: 'Reading time', value: stats.readingMin + ' min', icon: 'fa-book-open', color: '#3b82f6' },
                                         { label: 'Speaking time', value: stats.speakingMin + ' min', icon: 'fa-microphone', color: '#ef4444' },
-                                        { label: 'Longest word', value: stats.longestWord ? `${stats.longestWord.length} ch` : '—', icon: 'fa-arrow-up-9-1', color: '#f97316' }
+                                        { label: 'Longest word', value: stats.longestWord ? `${stats.longestWord.length} ch` : '—', icon: 'fa-arrow-up-9-1', color: '#f97316' },
+                                        { label: 'Flesch score', value: stats.flesch, icon: 'fa-graduation-cap', color: '#10b981' },
+                                        { label: 'Language hint', value: stats.lang, icon: 'fa-language', color: '#06b6d4' }
                                     ].map((s, i) => (
                                         <div key={i} className="card card-hover" style={{ padding: '14px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -3207,6 +4433,80 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                         </div>
                                     </div>
                                 )}
+                                {stats.topContentWords && stats.topContentWords.length > 0 && (
+                                    <div className="card" style={{ padding: '18px' }}>
+                                        <div className="panel-title">
+                                            <span className="panel-title-icon" style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7' }}><i className="fas fa-filter"></i></span>
+                                            Top Content Words
+                                            <span className="panel-subtitle">Stopwords filtered</span>
+                                        </div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                            {stats.topContentWords.map(([w, n], i) => {
+                                                const max = stats.topContentWords[0][1];
+                                                const pct = Math.round((n / max) * 100);
+                                                return (
+                                                    <div key={i} style={{
+                                                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                                                        padding: '6px 12px', borderRadius: 9999,
+                                                        background: `linear-gradient(90deg, rgba(168,85,247,${pct/300}) ${pct}%, var(--surface-2) ${pct}%)`,
+                                                        border: '1px solid var(--border)', fontSize: 12, fontWeight: 500
+                                                    }}>
+                                                        <span style={{ color: 'var(--text)' }}>{w}</span>
+                                                        <span style={{ color: 'var(--text-mute)', fontVariantNumeric: 'tabular-nums', fontSize: 11 }}>×{n}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                                {stats.charHistogram && stats.charHistogram.length > 0 && (
+                                    <div className="card" style={{ padding: '18px' }}>
+                                        <div className="panel-title">
+                                            <span className="panel-title-icon" style={{ background: 'rgba(236,72,153,0.12)', color: '#ec4899' }}><i className="fas fa-chart-column"></i></span>
+                                            Character Frequency
+                                            <span className="panel-subtitle">Top 12 letters</span>
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: 8 }}>
+                                            {stats.charHistogram.map(([ch, n], i) => {
+                                                const max = stats.charHistogram[0][1];
+                                                const pct = Math.max(8, Math.round((n / max) * 100));
+                                                return (
+                                                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 6px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
+                                                        <div style={{ width: '100%', height: 6, borderRadius: 999, background: 'var(--border)', overflow: 'hidden' }}>
+                                                            <div style={{ width: pct + '%', height: '100%', background: 'linear-gradient(90deg, #ec4899, #a855f7)' }}></div>
+                                                        </div>
+                                                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{ch === ' ' ? '␣' : ch}</div>
+                                                        <div style={{ fontSize: 10, color: 'var(--text-mute)', fontVariantNumeric: 'tabular-nums' }}>{n}</div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}><i className="fas fa-graduation-cap"></i></span>
+                                        Readability
+                                        <span className="panel-subtitle">Flesch Reading Ease</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                                        <div style={{ fontSize: 36, fontWeight: 800, color: '#10b981', fontVariantNumeric: 'tabular-nums', minWidth: 90 }}>{stats.flesch}</div>
+                                        <div style={{ flex: 1, minWidth: 220 }}>
+                                            <div style={{ height: 10, borderRadius: 999, background: 'var(--surface-2)', border: '1px solid var(--border)', overflow: 'hidden', position: 'relative' }}>
+                                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #ef4444, #f59e0b, #10b981)', opacity: 0.7 }}></div>
+                                                {stats.flesch !== '—' && (
+                                                    <div style={{ position: 'absolute', top: -3, left: `calc(${Math.max(0, Math.min(100, parseFloat(stats.flesch)))}% - 8px)`, width: 16, height: 16, borderRadius: '50%', background: 'var(--bg)', border: '3px solid #10b981', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}></div>
+                                                )}
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-mute)', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                                <span>Hard</span><span>Standard</span><span>Easy</span>
+                                            </div>
+                                            <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 8, fontWeight: 500 }}>
+                                                Reading level: <span style={{ color: '#10b981' }}>{stats.readingLevel}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className="card" style={{ padding: '18px' }}>
                                     <div className="panel-title">
                                         <span className="panel-title-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}><i className="fas fa-magnifying-glass"></i></span>
@@ -3229,27 +4529,9 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     case 'utilities':
                         return (
                             <div className="stack-lg">
-                                <div className="card" style={{ padding: '18px' }}>
-                                    <div className="panel-title">
-                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-paragraph"></i></span>
-                                        Lorem Ipsum Generator
-                                        <span className="panel-subtitle">Placeholder text</span>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label className="field-label">Paragraphs (1–20)</label>
-                                            <input type="number" min="1" max="20" className="input" value={loremParagraphs} onChange={(e) => setLoremParagraphs(parseInt(e.target.value) || 3)} />
-                                        </div>
-                                        <div>
-                                            <label className="field-label">Words per Paragraph (10–200)</label>
-                                            <input type="number" min="10" max="200" className="input" value={loremWordsPerParagraph} onChange={(e) => setLoremWordsPerParagraph(parseInt(e.target.value) || 50)} />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        <button onClick={() => generateLoremIpsum(loremParagraphs, loremWordsPerParagraph)} className="action-btn btn-indigo"><span className="icon-wrap"><i className="fas fa-wand-magic-sparkles"></i></span><span>Generate</span></button>
-                                        <button onClick={() => generateLoremIpsum(1, 30)} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-bolt"></i></span><span>Quick Short</span></button>
-                                        <button onClick={() => generateLoremIpsum(5, 80)} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-file-lines"></i></span><span>Quick Long</span></button>
-                                    </div>
+                                <div className="info-banner">
+                                    <i className="fas fa-toolbox info-icon"></i>
+                                    <div><strong>Utilities:</strong> emoji conversion, clipboard helpers, and quick text operations. For Lorem Ipsum, see the <strong>Generators</strong> category.</div>
                                 </div>
 
                                 <div className="card" style={{ padding: '18px' }}>
@@ -3269,19 +4551,30 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                 <div className="card" style={{ padding: '18px' }}>
                                     <div className="panel-title">
                                         <span className="panel-title-icon" style={{ background: 'rgba(20,184,166,0.12)', color: '#14b8a6' }}><i className="fas fa-toolbox"></i></span>
-                                        General Utilities
+                                        Clipboard &amp; Quick Actions
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        <button onClick={copyToClipboard} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-copy"></i></span><span>Copy</span></button>
+                                        <button onClick={copyToClipboard} className="action-btn btn-emerald"><span className="icon-wrap"><i className="fas fa-copy"></i></span><span>Copy All</span></button>
                                         <button onClick={pasteFromClipboard} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-paste"></i></span><span>Paste</span></button>
                                         <button onClick={removeHtmlTags} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-code"></i></span><span>Strip HTML Tags</span></button>
                                         <button onClick={clearText} className="action-btn btn-rose"><span className="icon-wrap"><i className="fas fa-trash"></i></span><span>Clear All Text</span></button>
                                     </div>
                                 </div>
 
+                                <div className="card" style={{ padding: '18px' }}>
+                                    <div className="panel-title">
+                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-magnifying-glass"></i></span>
+                                        Search &amp; Replace
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <button onClick={() => setFindOpen(true)} className="action-btn btn-blue"><span className="icon-wrap"><i className="fas fa-magnifying-glass"></i></span><span>Open Find &amp; Replace</span></button>
+                                        <button onClick={() => setPaletteOpen(true)} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-bolt"></i></span><span>Command Palette</span></button>
+                                    </div>
+                                </div>
+
                                 <div className="info-banner">
                                     <i className="fas fa-keyboard info-icon"></i>
-                                    <div><strong>Find & Replace:</strong> press <kbd style={{ background: 'var(--surface-2)', padding: '1px 6px', borderRadius: 4, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}>Ctrl+F</kbd> in the editor for built-in find & replace.</div>
+                                    <div><strong>Tip:</strong> press <kbd style={{ background: 'var(--surface-2)', padding: '1px 6px', borderRadius: 4, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}>Ctrl+F</kbd> anywhere for find &amp; replace, or <kbd style={{ background: 'var(--surface-2)', padding: '1px 6px', borderRadius: 4, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}>Ctrl+K</kbd> for the command palette.</div>
                                 </div>
                             </div>
                         );
@@ -3365,8 +4658,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         <button onClick={saveAsTxt} className="action-btn btn-slate"><span className="icon-wrap"><i className="fas fa-file-lines"></i></span><span>Save TXT</span></button>
                                         <button onClick={saveAsPdf} className="action-btn btn-rose"><span className="icon-wrap"><i className="fas fa-file-pdf"></i></span><span>Save PDF</span></button>
-                                        <button onClick={saveAsRtf} className="action-btn btn-violet"><span className="icon-wrap"><i className="fas fa-file-word"></i></span><span>Save RTF</span></button>
-                                        <button onClick={exportAsDocx} className="action-btn btn-blue" title="Saves as RTF — compatible with Word"><span className="icon-wrap"><i className="fas fa-file-word"></i></span><span>Save RTF/DOCX</span></button>
+                                        <button onClick={saveAsRtf} className="action-btn btn-violet" title="Save as Rich Text Format (Word-compatible)"><span className="icon-wrap"><i className="fas fa-file-word"></i></span><span>Save RTF</span></button>
+                                        <button onClick={saveCurrentSmart} className="action-btn btn-blue" title="Auto-detect best format (TXT/MD/JSON) by content"><span className="icon-wrap"><i className="fas fa-wand-magic-sparkles"></i></span><span>Smart Save</span></button>
                                     </div>
                                 </div>
                                 <div>
@@ -3433,6 +4726,13 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 { id: 'edit-copy', name: 'Copy to Clipboard', icon: 'fa-copy', category: 'Edit', action: copyToClipboard },
                 { id: 'edit-paste', name: 'Paste from Clipboard', icon: 'fa-paste', category: 'Edit', action: pasteFromClipboard },
                 { id: 'edit-clear', name: 'Clear All Text', icon: 'fa-trash', category: 'Edit', action: clearText },
+                { id: 'edit-capitalize', name: 'Capitalize Every Word', icon: 'fa-text-height', category: 'Edit', action: capitalizeWords },
+                { id: 'edit-reverse-words', name: 'Reverse Words (per line)', icon: 'fa-right-left', category: 'Edit', action: reverseWords },
+                { id: 'edit-rm-numbers', name: 'Remove Numbers', icon: 'fa-hashtag', category: 'Edit', action: removeNumbers },
+                { id: 'edit-rm-punct', name: 'Remove Punctuation', icon: 'fa-quote-right', category: 'Edit', action: removePunctuation },
+                { id: 'edit-extract-email', name: 'Extract Emails', icon: 'fa-at', category: 'Extract', action: extractEmails },
+                { id: 'edit-extract-url', name: 'Extract URLs', icon: 'fa-link', category: 'Extract', action: extractUrls },
+                { id: 'edit-extract-num', name: 'Extract Numbers', icon: 'fa-1', category: 'Extract', action: extractNumbers },
                 // Case
                 { id: 'case-camel', name: 'Convert to camelCase', icon: 'fa-text-height', category: 'Case', action: toCamelCase },
                 { id: 'case-pascal', name: 'Convert to PascalCase', icon: 'fa-text-height', category: 'Case', action: toPascalCase },
@@ -3487,7 +4787,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 { id: 'exp-json', name: 'Save as JSON', icon: 'fa-code', category: 'Export', action: saveAsJson },
                 { id: 'exp-xml', name: 'Save as XML', icon: 'fa-code', category: 'Export', action: saveAsXml },
                 { id: 'exp-csv', name: 'Save as CSV', icon: 'fa-table', category: 'Export', action: saveAsCsv },
-                { id: 'exp-rtf', name: 'Save as RTF', icon: 'fa-file-word', category: 'Export', action: saveAsRtf },
+                { id: 'exp-rtf', name: 'Save as RTF (Word-compatible)', icon: 'fa-file-word', category: 'Export', action: saveAsRtf },
+                { id: 'exp-smart', name: 'Smart Save (auto-detect format)', icon: 'fa-wand-magic-sparkles', category: 'Export', action: saveCurrentSmart },
                 { id: 'exp-print', name: 'Print', icon: 'fa-print', category: 'Export', action: printText },
                 // View
                 { id: 'view-dark', name: darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode', icon: darkMode ? 'fa-sun' : 'fa-moon', category: 'View', action: () => setDarkMode(d => !d) },
@@ -3501,7 +4802,61 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 { id: 'tpl-article', name: 'Insert Article Template', icon: 'fa-newspaper', category: 'Template', action: () => generateTemplate('article') },
                 { id: 'tpl-email', name: 'Insert Email Template', icon: 'fa-at', category: 'Template', action: () => generateTemplate('email') },
                 { id: 'tpl-lorem', name: 'Generate Lorem Ipsum', icon: 'fa-paragraph', category: 'Template', action: () => generateLoremIpsum(loremParagraphs, loremWordsPerParagraph) },
-            ], [activeTab, tabs, darkMode, isFullscreen, sidebarCollapsed, wordWrap, currentTab, loremParagraphs, loremWordsPerParagraph]);
+                // Navigation (new categories)
+                { id: 'nav-transform', name: 'Go to Fun Transforms', icon: 'fa-wand-sparkles', category: 'Navigation', action: () => setActiveCategory('transform') },
+                { id: 'nav-generators', name: 'Go to Generators', icon: 'fa-dice', category: 'Navigation', action: () => setActiveCategory('generators') },
+                { id: 'nav-regex', name: 'Go to Regex Lab', icon: 'fa-asterisk', category: 'Navigation', action: () => setActiveCategory('regex') },
+                { id: 'nav-diff', name: 'Go to Text Diff', icon: 'fa-code-compare', category: 'Navigation', action: () => setActiveCategory('diff') },
+                { id: 'nav-stats', name: 'Go to Statistics', icon: 'fa-chart-simple', category: 'Navigation', action: () => setActiveCategory('stats') },
+                { id: 'nav-settings', name: 'Go to Settings', icon: 'fa-gear', category: 'Navigation', action: () => setActiveCategory('settings') },
+                { id: 'nav-hash', name: 'Go to Hash & Crypto', icon: 'fa-fingerprint', category: 'Navigation', action: () => setActiveCategory('hash') },
+                { id: 'nav-caseconv', name: 'Go to Case Conversion', icon: 'fa-text-height', category: 'Navigation', action: () => setActiveCategory('caseconv') },
+                // Fun Transforms
+                { id: 'tx-mirror', name: 'Upside-Down / Mirror Text', icon: 'fa-arrows-up-down', category: 'Transform', action: mirrorText },
+                { id: 'tx-leet', name: 'L33t Sp34k', icon: 'fa-keyboard', category: 'Transform', action: toLeetSpeak },
+                { id: 'tx-zalgo', name: 'Zalgo Text', icon: 'fa-skull', category: 'Transform', action: zalgoify },
+                { id: 'tx-dezalgo', name: 'De-Zalgo (remove combining marks)', icon: 'fa-broom', category: 'Transform', action: removeCombiningMarks },
+                { id: 'tx-nato', name: 'NATO Phonetic Alphabet', icon: 'fa-tower-broadcast', category: 'Transform', action: toNatoPhonetic },
+                { id: 'tx-title-heading', name: 'Title-Style Heading Case', icon: 'fa-heading', category: 'Transform', action: titleHeadingCase },
+                { id: 'tx-smart-q', name: 'Smart Quotes (typographic)', icon: 'fa-quote-left', category: 'Transform', action: toSmartQuotes },
+                { id: 'tx-straight-q', name: 'Straight Quotes', icon: 'fa-quote-right', category: 'Transform', action: toStraightQuotes },
+                { id: 'tx-fullwidth', name: 'Convert to Full-Width (CJK)', icon: 'fa-arrows-left-right', category: 'Transform', action: toFullWidth },
+                { id: 'tx-halfwidth', name: 'Convert to Half-Width', icon: 'fa-compress', category: 'Transform', action: toHalfWidth },
+                { id: 'tx-accents', name: 'Remove Accents / Diacritics', icon: 'fa-language', category: 'Transform', action: removeAccents },
+                { id: 'tx-norm-ws', name: 'Normalize Whitespace', icon: 'fa-arrows-to-circle', category: 'Transform', action: normalizeWhitespace },
+                { id: 'tx-zws', name: 'Remove Zero-Width Characters', icon: 'fa-ghost', category: 'Transform', action: removeZeroWidth },
+                { id: 'tx-collapse-blanks', name: 'Collapse Multiple Blank Lines', icon: 'fa-arrows-to-eye', category: 'Transform', action: removeBlankLinesBetween },
+                { id: 'tx-num-words', name: 'Numbers → Words', icon: 'fa-spell-check', category: 'Transform', action: numbersToWordsAll },
+                { id: 'tx-indent-2', name: 'Indent (+2 spaces)', icon: 'fa-indent', category: 'Transform', action: () => indentText(2) },
+                { id: 'tx-indent-4', name: 'Indent (+4 spaces)', icon: 'fa-indent', category: 'Transform', action: () => indentText(4) },
+                { id: 'tx-dedent', name: 'Dedent', icon: 'fa-outdent', category: 'Transform', action: dedentText },
+                { id: 'tx-tabs-spaces', name: 'Tabs → Spaces', icon: 'fa-arrow-right', category: 'Transform', action: tabsToSpaces },
+                { id: 'tx-spaces-tabs', name: 'Spaces → Tabs', icon: 'fa-arrow-left', category: 'Transform', action: spacesToTabs },
+                { id: 'tx-wrap-code', name: 'Wrap as Code Block', icon: 'fa-code', category: 'Transform', action: wrapAsCodeBlock },
+                { id: 'tx-wrap-quote', name: 'Wrap as Blockquote', icon: 'fa-quote-left', category: 'Transform', action: wrapAsQuote },
+                { id: 'tx-esc-regex', name: 'Escape Regex Special Chars', icon: 'fa-asterisk', category: 'Transform', action: escapeRegex },
+                { id: 'tx-esc-quotes', name: 'Escape Quotes', icon: 'fa-quote-right', category: 'Transform', action: escapeQuotes },
+                { id: 'tx-unesc-quotes', name: 'Unescape Quotes', icon: 'fa-quote-left', category: 'Transform', action: unescapeQuotes },
+                // Generators
+                { id: 'gen-pw', name: 'Generate Secure Password(s)', icon: 'fa-key', category: 'Generators', action: generatePassword },
+                { id: 'gen-uuid-5', name: 'Generate 5 UUIDs', icon: 'fa-fingerprint', category: 'Generators', action: () => generateUUIDs(5) },
+                { id: 'gen-uuid-20', name: 'Generate 20 UUIDs', icon: 'fa-fingerprint', category: 'Generators', action: () => generateUUIDs(20) },
+                { id: 'gen-ts', name: 'Generate Timestamps', icon: 'fa-clock', category: 'Generators', action: generateTimestamps },
+                { id: 'gen-rnd-num', name: 'Insert Random Numbers', icon: 'fa-dice', category: 'Generators', action: insertRandomNumbers },
+                { id: 'gen-palette', name: 'Generate Color Palette', icon: 'fa-palette', category: 'Generators', action: generateColorPalette },
+                { id: 'gen-names', name: 'Generate Random Names', icon: 'fa-user-group', category: 'Generators', action: generateNames },
+                // Regex
+                { id: 'rx-apply', name: 'Apply Regex Replacement', icon: 'fa-asterisk', category: 'Regex', action: applyRegexReplace },
+                // Help / Settings
+                { id: 'help-shortcuts', name: 'Show Keyboard Shortcuts', icon: 'fa-keyboard', category: 'Help', action: () => setShortcutsOpen(true) },
+                { id: 'help-about', name: 'About Text Manipulator Pro', icon: 'fa-circle-info', category: 'Help', action: () => setAboutOpen(true) },
+                { id: 'set-autosave', name: autoSaveEnabled ? 'Disable Auto-Save' : 'Enable Auto-Save', icon: 'fa-cloud-arrow-up', category: 'Settings', action: () => setAutoSaveEnabled(v => !v) },
+                { id: 'set-confirm', name: confirmDestructive ? 'Disable Destructive-Action Confirms' : 'Enable Destructive-Action Confirms', icon: 'fa-shield-halved', category: 'Settings', action: () => setConfirmDestructive(v => !v) },
+                { id: 'set-spell', name: spellCheck ? 'Disable Spell Check' : 'Enable Spell Check', icon: 'fa-spell-check', category: 'Settings', action: () => setSpellCheck(v => !v) },
+                { id: 'set-font-mono', name: 'Editor Font: Monospace', icon: 'fa-font', category: 'Settings', action: () => setEditorFontFamily('Mono') },
+                { id: 'set-font-sans', name: 'Editor Font: Sans-Serif', icon: 'fa-font', category: 'Settings', action: () => setEditorFontFamily('Inter') },
+                { id: 'set-font-serif', name: 'Editor Font: Serif', icon: 'fa-font', category: 'Settings', action: () => setEditorFontFamily('Serif') },
+            ], [activeTab, tabs, darkMode, isFullscreen, sidebarCollapsed, wordWrap, currentTab, loremParagraphs, loremWordsPerParagraph, autoSaveEnabled, confirmDestructive, spellCheck]);
 
             return (
                 <div className="app-shell">
@@ -3532,28 +4887,30 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
 
                             <div style={{ width: 1, height: 24, background: 'var(--border)', margin: '0 4px' }}></div>
 
-                            <button onClick={() => setPaletteOpen(true)} className="icon-btn" title="Command palette (Ctrl+K)">
-                                <i className="fas fa-bolt"></i>
+                            <button onClick={() => setPaletteOpen(true)} className="icon-btn" title="Command palette (Ctrl+K)" aria-label="Open command palette">
+                                <i className="fas fa-bolt" aria-hidden="true"></i>
                             </button>
-                            <button onClick={() => setFindOpen(true)} className="icon-btn" title="Find & Replace (Ctrl+F)">
-                                <i className="fas fa-magnifying-glass"></i>
+                            <button onClick={() => setFindOpen(true)} className="icon-btn" title="Find & Replace (Ctrl+F)" aria-label="Open find and replace">
+                                <i className="fas fa-magnifying-glass" aria-hidden="true"></i>
                             </button>
-                            <button onClick={undo} className="icon-btn" title="Undo (Ctrl+Z)">
-                                <i className="fas fa-rotate-left"></i>
+                            <button onClick={undo} className="icon-btn" title="Undo (Ctrl+Z)" aria-label="Undo">
+                                <i className="fas fa-rotate-left" aria-hidden="true"></i>
                             </button>
-                            <button onClick={redo} className="icon-btn" title="Redo (Ctrl+Y)">
-                                <i className="fas fa-rotate-right"></i>
+                            <button onClick={redo} className="icon-btn" title="Redo (Ctrl+Y)" aria-label="Redo">
+                                <i className="fas fa-rotate-right" aria-hidden="true"></i>
                             </button>
                             <button onClick={() => setIsFullscreen(!isFullscreen)} className="icon-btn"
-                                title={isFullscreen ? 'Exit focus mode (F11)' : 'Focus mode (F11)'}>
+                                title={isFullscreen ? 'Exit focus mode (F11)' : 'Focus mode (F11)'} aria-label={isFullscreen ? 'Exit focus mode' : 'Enter focus mode'} aria-pressed={isFullscreen}>
                                 <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'}`}></i>
                             </button>
-                            <button onClick={() => { setWordWrap(w => !w); showToast(wordWrap ? 'Word wrap off' : 'Word wrap on', 'info'); }} className={`icon-btn ${wordWrap ? '' : 'primary'}`}
-                                title={wordWrap ? 'Word wrap: ON (click to disable)' : 'Word wrap: OFF (click to enable)'}>
+                            <span className="topbar-actions-secondary" style={{ display: 'inline-flex', gap: 6 }}>
+                            <button onClick={() => { setWordWrap(w => { showToast(w ? 'Word wrap off' : 'Word wrap on', 'info'); return !w; }); }} className={`icon-btn ${wordWrap ? '' : 'primary'}`}
+                                title={wordWrap ? 'Word wrap: ON (click to disable)' : 'Word wrap: OFF (click to enable)'} aria-label={wordWrap ? 'Disable word wrap' : 'Enable word wrap'} aria-pressed={!wordWrap}>
                                 <i className="fas fa-text-width"></i>
                             </button>
+                            </span>
                             <button onClick={() => setDarkMode(!darkMode)} className="icon-btn primary"
-                                title={darkMode ? 'Switch to light' : 'Switch to dark'}>
+                                title={darkMode ? 'Switch to light' : 'Switch to dark'} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'} aria-pressed={darkMode}>
                                 <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
                             </button>
                         </div>
@@ -3583,6 +4940,15 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                     onNewTab={addNewTab}
                                     onCloseTab={closeTab}
                                     onRenameTab={renameTab}
+                                    onPinTab={togglePinTab}
+                                    onDuplicateTab={(id) => {
+                                        const t = tabs.find(x => x.id === id);
+                                        if (!t) return;
+                                        const newId = (tabs.length ? Math.max(...tabs.map(x => x.id)) : 0) + 1;
+                                        setTabs(prev => [...prev, { id: newId, name: `${t.name} (copy)`, text: t.text }]);
+                                        setActiveTab(newId);
+                                        showToast('Tab duplicated', 'success');
+                                    }}
                                 />
                             )}
 
@@ -3617,27 +4983,32 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
 
                                 {/* Function panel */}
                                 {!isFullscreen && (
-                                    <div className="card tab-content" key={activeCategory} style={{ padding: '18px' }}>
+                                    <div className="card tab-content" key={activeCategory} role="region" aria-labelledby="active-category-title" style={{ padding: '18px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 14, borderBottom: '1px solid var(--border)' }}>
                                             <div style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(129,140,248,0.1))', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>
                                                 <i className={activeCategoryObj?.icon}></i>
                                             </div>
                                             <div>
-                                                <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em' }}>{activeCategoryObj?.name}</div>
+                                                <div id="active-category-title" style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em' }}>{activeCategoryObj?.name}</div>
                                                 <div style={{ fontSize: 11.5, color: 'var(--text-mute)', marginTop: 1 }}>
                                                     {{
                                                         formatting: 'Format and transform your text',
                                                         caseconv: 'Programming-style case conversions',
                                                         lines: 'Operate on lines and structure',
+                                                        transform: 'Creative & stylized text transformations',
                                                         wordsymbol: 'Wrap words with custom patterns',
                                                         lettersymbol: 'Insert symbols between letters',
                                                         encoding: 'Encode and decode formats',
                                                         hash: 'Cryptographic hashes and JSON tools',
+                                                        generators: 'Passwords, UUIDs, timestamps & more',
+                                                        regex: 'Live-test regex patterns with replacement',
+                                                        diff: 'Compare two tabs line-by-line',
                                                         documents: 'Import, convert and validate documents',
-                                                        utilities: 'Generators, emojis and helpers',
+                                                        utilities: 'Emojis, lorem ipsum and helpers',
                                                         stats: 'Live text analysis and metrics',
-                                                        export: 'Save your work in any format'
-                                                    }[activeCategory]}
+                                                        export: 'Save your work in any format',
+                                                        settings: 'Customize editor and behaviour'
+                                                    }[activeCategory] || 'Tools & utilities'}
                                                 </div>
                                             </div>
                                         </div>
@@ -3665,15 +5036,38 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         )}
                         <span className="sb-divider"></span>
                         <span className="sb-item" title="Words"><i className="fas fa-font"></i>{wordCount} words</span>
-                        <span className="sb-divider"></span>
-                        <span className="sb-item" title="Estimated reading time"><i className="fas fa-book-open"></i>{stats.readingMin} min read</span>
+                        <span className="sb-divider sb-hide-sm"></span>
+                        <span className="sb-item sb-hide-sm" title="Estimated reading time"><i className="fas fa-book-open"></i>{stats.readingMin} min read</span>
                         <span className="sb-spacer"></span>
-                        <span className="sb-item" title="Active tab">
+                        {autoSaveEnabled && lastSavedAt && (
+                            <>
+                                <span className="sb-item sb-hide-xs" title={`Last auto-saved at ${lastSavedAt.toLocaleTimeString()}`} style={{ color: '#10b981' }}>
+                                    <i className="fas fa-cloud-arrow-up"></i>
+                                    Saved {lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </span>
+                                <span className="sb-divider sb-hide-xs"></span>
+                            </>
+                        )}
+                        {!autoSaveEnabled && (
+                            <>
+                                <span className="sb-item sb-hide-xs" title="Auto-save is disabled" style={{ color: '#f59e0b' }}>
+                                    <i className="fas fa-cloud-arrow-up"></i>
+                                    Auto-save off
+                                </span>
+                                <span className="sb-divider sb-hide-xs"></span>
+                            </>
+                        )}
+                        <span className="sb-item sb-hide-sm" title="Active tab" style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             <i className="fas fa-file-lines"></i>
-                            {currentTab?.name}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTab?.name}</span>
                         </span>
-                        <span className="sb-divider"></span>
-                        <span className="sb-item" title="Press Ctrl+K for command palette">
+                        <span className="sb-divider sb-hide-sm"></span>
+                        <button className="sb-item sb-hide-md" onClick={() => setShortcutsOpen(true)} title="Keyboard shortcuts" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0, font: 'inherit' }}>
+                            <i className="fas fa-keyboard"></i>
+                            Shortcuts
+                        </button>
+                        <span className="sb-divider sb-hide-md"></span>
+                        <span className="sb-item sb-hide-md" title="Press Ctrl+K for command palette">
                             <kbd>Ctrl</kbd>+<kbd>K</kbd>
                         </span>
                     </div>
@@ -3693,6 +5087,103 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         onClose={() => setPaletteOpen(false)}
                         commands={commands}
                     />
+
+                    {/* Keyboard Shortcuts Modal */}
+                    {shortcutsOpen && (
+                        <div className="modal-overlay" onClick={() => setShortcutsOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)' }}>
+                            <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, width: '100%', maxWidth: 720, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <span className="panel-title-icon" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}><i className="fas fa-keyboard"></i></span>
+                                        <div style={{ fontWeight: 700, fontSize: 17, color: 'var(--text)' }}>Keyboard Shortcuts</div>
+                                    </div>
+                                    <button className="icon-btn" onClick={() => setShortcutsOpen(false)} title="Close"><i className="fas fa-xmark"></i></button>
+                                </div>
+                                <div style={{ padding: '18px 22px' }}>
+                                    {[
+                                        { title: 'General', items: [
+                                            ['Open command palette', 'Ctrl+K'],
+                                            ['Find & Replace', 'Ctrl+F'],
+                                            ['Save as TXT', 'Ctrl+S'],
+                                            ['Toggle dark mode', 'Ctrl+Shift+D'],
+                                            ['Toggle focus mode', 'F11'],
+                                        ]},
+                                        { title: 'Editing', items: [
+                                            ['Undo', 'Ctrl+Z'],
+                                            ['Redo', 'Ctrl+Y / Ctrl+Shift+Z'],
+                                            ['Bold / Italic / Underline', 'Ctrl+B / I / U'],
+                                            ['Select all', 'Ctrl+A'],
+                                        ]},
+                                        { title: 'Tabs', items: [
+                                            ['New tab', 'Ctrl+T'],
+                                            ['Close current tab', 'Ctrl+W'],
+                                            ['Reopen recently closed tab', 'Ctrl+Shift+T'],
+                                            ['Next / Previous tab', 'Ctrl+Tab / Ctrl+Shift+Tab'],
+                                            ['Jump to tab 1–9', 'Ctrl+1 … Ctrl+9'],
+                                        ]},
+                                    ].map((section, si) => (
+                                        <div key={si} style={{ marginBottom: 18 }}>
+                                            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-mute)', fontWeight: 700, marginBottom: 8 }}>{section.title}</div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 6 }}>
+                                                {section.items.map((row, i) => (
+                                                    <React.Fragment key={i}>
+                                                        <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text)' }}>{row[0]}</div>
+                                                        <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--accent)', fontWeight: 600, whiteSpace: 'nowrap' }}>{row[1]}</div>
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* About Modal */}
+                    {aboutOpen && (
+                        <div className="modal-overlay" onClick={() => setAboutOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)' }}>
+                            <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, width: '100%', maxWidth: 540, boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <span className="panel-title-icon" style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7' }}><i className="fas fa-circle-info"></i></span>
+                                        <div style={{ fontWeight: 700, fontSize: 17, color: 'var(--text)' }}>About Text Manipulator Pro</div>
+                                    </div>
+                                    <button className="icon-btn" onClick={() => setAboutOpen(false)} title="Close"><i className="fas fa-xmark"></i></button>
+                                </div>
+                                <div style={{ padding: '22px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                                        <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg, #3b82f6, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 24, boxShadow: '0 8px 20px rgba(59,130,246,0.35)' }}>
+                                            <i className="fas fa-feather-pointed"></i>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Text Manipulator Pro</div>
+                                            <div style={{ fontSize: 12, color: 'var(--text-mute)' }}>Version 3.0 · Single-file edition</div>
+                                        </div>
+                                    </div>
+                                    <p style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--text)', marginBottom: 14 }}>
+                                        A privacy-first text manipulation suite that runs entirely in your browser.
+                                        No servers, no tracking, no uploads — all transformations happen locally.
+                                    </p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+                                        {[
+                                            ['200+', 'Transformations'],
+                                            ['16', 'Categories'],
+                                            ['100%', 'Local & private'],
+                                            ['0', 'Network requests'],
+                                        ].map(([v, l], i) => (
+                                            <div key={i} style={{ padding: '12px', borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                                                <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--accent)' }}>{v}</div>
+                                                <div style={{ fontSize: 11, color: 'var(--text-mute)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{l}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-mute)', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                                        Built with React, Quill, jsPDF & Tailwind CSS
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div style={{ position: 'fixed', top: 70, right: 16, zIndex: 100, display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {toasts.map(t => (
