@@ -593,6 +593,67 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             color: white;
         }
 
+        /* ===== Confirm Modal ===== */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 250;
+            padding: 16px;
+            animation: fadeIn 0.18s ease;
+        }
+        .confirm-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            animation: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        .confirm-card .head {
+            padding: 18px 20px 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .confirm-card .head .ic {
+            width: 38px; height: 38px;
+            border-radius: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .confirm-card .head .ic.danger { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .confirm-card .head .ic.warn   { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .confirm-card .head .ic.info   { background: rgba(59,130,246,0.12); color: #3b82f6; }
+        .confirm-card .body {
+            padding: 8px 20px 18px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: var(--text-soft);
+        }
+        .confirm-card .body strong { color: var(--text); }
+        .confirm-card .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 14px 16px;
+            background: var(--surface-2);
+            border-top: 1px solid var(--border);
+        }
+        .confirm-card .actions button {
+            min-width: 88px;
+        }
+
         /* ===== Toast ===== */
         .toast {
             display: flex;
@@ -630,7 +691,7 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
         .toast.warning { border-left: 3px solid #f59e0b; }
         .toast.info    { border-left: 3px solid #3b82f6; }
 
-        /* ===== Loading Spinner ===== */
+        /* ===== Loading Spinner / Modal Overlay ===== */
         .spinner-overlay {
             position: fixed;
             inset: 0;
@@ -640,7 +701,7 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 150;
             animation: fadeIn 0.2s ease;
         }
         .spinner-card {
@@ -841,6 +902,17 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
         /* Tab name truncation & pinned tabs */
         .tab > span:not(.close-x) { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
         .tab.pinned i.fa-thumbtack { color: #3b82f6; }
+        .tab.dirty::after {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f59e0b;
+            margin-left: 2px;
+            box-shadow: 0 0 0 2px var(--surface);
+            animation: pulseGlow 2.4s ease-in-out infinite;
+        }
 
         /* ===== Editor Footer ===== */
         .editor-toggle-btn {
@@ -1031,6 +1103,8 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             .status-bar .sb-divider { display: none; }
             .status-bar .sb-spacer { flex-basis: 100%; height: 0; }
             .status-bar .sb-hide-md { display: none !important; }
+            .toast-container { top: auto !important; bottom: 70px !important; right: 12px !important; left: 12px !important; }
+            .toast { min-width: 0 !important; max-width: 100% !important; }
         }
         @media (max-width: 640px) {
             .stat-pill.w { display: none; }
@@ -1040,11 +1114,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             .status-bar .sb-hide-sm { display: none !important; }
             .status-bar { gap: 6px; }
             .status-bar .sb-item { font-size: 10px; }
+            .topbar { padding: 6px 10px !important; }
+            .topbar > div { gap: 6px !important; }
+            .ql-editor { padding: 12px !important; font-size: 14px !important; }
+            .card { border-radius: 12px; }
         }
         @media (max-width: 480px) {
             .stat-pill.c { display: none; }
             .topbar-actions-secondary { display: none; }
             .status-bar .sb-hide-xs { display: none !important; }
+            .ql-toolbar.ql-snow { padding: 6px 4px !important; }
+            .ql-toolbar.ql-snow .ql-formats { margin-right: 6px !important; }
+            .action-btn { padding: 9px 10px; font-size: 12px; }
+            .action-btn .icon-wrap { width: 20px; height: 20px; font-size: 10px; }
         }
 
         .mobile-overlay {
@@ -1179,10 +1261,71 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
         function LoadingSpinner({ isLoading, message }) {
             if (!isLoading) return null;
             return (
-                <div className="spinner-overlay">
+                <div className="spinner-overlay" role="status" aria-live="polite">
                     <div className="spinner-card">
                         <div className="spinner"></div>
                         <span style={{ fontSize: '13.5px', fontWeight: 500 }}>{message}</span>
+                    </div>
+                </div>
+            );
+        }
+
+        // ============= Confirm Modal (replaces window.confirm) =============
+        function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, variant, onConfirm, onCancel }) {
+            const confirmRef = React.useRef(null);
+            const cancelRef = React.useRef(null);
+            const previousFocusRef = React.useRef(null);
+            React.useEffect(() => {
+                if (!open) return;
+                // Remember what was focused before opening so we can restore it afterwards.
+                previousFocusRef.current = document.activeElement;
+                const onKey = (e) => {
+                    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onCancel(); }
+                    else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); onConfirm(); }
+                    else if (e.key === 'Tab') {
+                        // Simple focus trap between Cancel and Confirm
+                        const focusables = [cancelRef.current, confirmRef.current].filter(Boolean);
+                        if (focusables.length < 2) return;
+                        e.preventDefault();
+                        const idx = focusables.indexOf(document.activeElement);
+                        const next = e.shiftKey
+                            ? focusables[(idx <= 0 ? focusables.length : idx) - 1]
+                            : focusables[(idx + 1) % focusables.length];
+                        next && next.focus();
+                    }
+                };
+                document.addEventListener('keydown', onKey, true);
+                const t = setTimeout(() => confirmRef.current && confirmRef.current.focus(), 30);
+                return () => {
+                    document.removeEventListener('keydown', onKey, true);
+                    clearTimeout(t);
+                    // Restore focus to the element that opened the dialog (if still in DOM).
+                    const prev = previousFocusRef.current;
+                    if (prev && typeof prev.focus === 'function' && document.contains(prev)) {
+                        try { prev.focus(); } catch (e) {}
+                    }
+                };
+            }, [open, onConfirm, onCancel]);
+            if (!open) return null;
+            const v = variant || 'danger';
+            const icon = v === 'danger' ? 'fa-triangle-exclamation' : (v === 'warn' ? 'fa-circle-exclamation' : 'fa-circle-question');
+            const btnClass = v === 'danger' ? 'btn-rose' : (v === 'warn' ? 'btn-amber' : 'btn-blue');
+            return (
+                <div className="confirm-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+                    <div className="confirm-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="head">
+                            <span className={`ic ${v}`}><i className={`fas ${icon}`}></i></span>
+                            <div id="confirm-title" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{title || 'Are you sure?'}</div>
+                        </div>
+                        <div className="body">{message}</div>
+                        <div className="actions">
+                            <button ref={cancelRef} onClick={onCancel} className="action-btn btn-slate" style={{ flex: '0 0 auto' }}>
+                                <span>{cancelLabel || 'Cancel'}</span>
+                            </button>
+                            <button ref={confirmRef} onClick={onConfirm} className={`action-btn ${btnClass}`} style={{ flex: '0 0 auto' }}>
+                                <span>{confirmLabel || 'Confirm'}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             );
@@ -1930,10 +2073,31 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 }
             }, [editorFontSize, editorFontFamily, editorLineHeight, spellCheck, activeCategory]);
 
-            const confirmAction = (msg) => {
-                if (!confirmDestructive) return true;
-                return window.confirm(msg);
-            };
+            // ===== Promise-based confirmation modal state =====
+            // confirmState shape: { open, title, message, confirmLabel, cancelLabel, variant, resolver }
+            const [confirmState, setConfirmState] = React.useState({ open: false });
+            const confirmAction = React.useCallback((message, opts = {}) => {
+                // Respect the "Confirm destructive actions" setting — auto-accept when disabled,
+                // unless the caller explicitly forces the prompt (opts.force === true).
+                if (!confirmDestructive && !opts.force) return Promise.resolve(true);
+                return new Promise((resolve) => {
+                    setConfirmState({
+                        open: true,
+                        title: opts.title || 'Are you sure?',
+                        message: message,
+                        confirmLabel: opts.confirmLabel || 'Confirm',
+                        cancelLabel: opts.cancelLabel || 'Cancel',
+                        variant: opts.variant || 'danger',
+                        resolver: resolve
+                    });
+                });
+            }, [confirmDestructive]);
+            const handleConfirmResolve = React.useCallback((value) => {
+                setConfirmState(prev => {
+                    if (prev.resolver) prev.resolver(value);
+                    return { open: false };
+                });
+            }, []);
 
             const categories = [
                 { id: 'formatting',   name: 'Text Formatting',  icon: 'fas fa-font' },
@@ -1987,44 +2151,69 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             React.useEffect(() => {
                 const onKey = (e) => {
                     const mod = e.ctrlKey || e.metaKey;
+                    const key = (e.key || '').toLowerCase();
                     // F11 / Ctrl+Shift+F → fullscreen
-                    if (e.key === 'F11' || (mod && e.shiftKey && (e.key === 'F' || e.key === 'f'))) {
+                    if (e.key === 'F11' || (mod && e.shiftKey && key === 'f')) {
                         e.preventDefault();
                         setIsFullscreen(p => !p);
                     }
                     // Ctrl+F → Find & Replace
-                    else if (mod && !e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+                    else if (mod && !e.shiftKey && key === 'f') {
                         e.preventDefault();
                         setFindOpen(true);
                     }
                     // Ctrl+H → Find & Replace
-                    else if (mod && (e.key === 'h' || e.key === 'H')) {
+                    else if (mod && key === 'h') {
                         e.preventDefault();
                         setFindOpen(true);
                     }
                     // Ctrl+K → Command palette
-                    else if (mod && (e.key === 'k' || e.key === 'K')) {
+                    else if (mod && key === 'k') {
                         e.preventDefault();
                         setPaletteOpen(true);
                     }
+                    // Ctrl+/ → Keyboard shortcuts help
+                    else if (mod && (e.key === '/' || e.key === '?')) {
+                        e.preventDefault();
+                        setShortcutsOpen(p => !p);
+                    }
+                    // Ctrl+, → Settings
+                    else if (mod && e.key === ',') {
+                        e.preventDefault();
+                        setActiveCategory('settings');
+                        setMobileMenuOpen(false);
+                    }
                     // Ctrl+S → Save as TXT
-                    else if (mod && !e.shiftKey && (e.key === 's' || e.key === 'S')) {
+                    else if (mod && !e.shiftKey && key === 's') {
                         e.preventDefault();
                         saveAsTxt();
                     }
-                    // Ctrl+Shift+T → Reopen recently closed tab
-                    else if (mod && e.shiftKey && (e.key === 't' || e.key === 'T')) {
+                    // Ctrl+Shift+S → Save as PDF
+                    else if (mod && e.shiftKey && key === 's') {
                         e.preventDefault();
+                        if (typeof saveAsPdf === 'function') saveAsPdf();
+                    }
+                    // Ctrl+Shift+T → Reopen recently closed tab (must precede Ctrl+T)
+                    else if (mod && e.shiftKey && key === 't') {
+                        e.preventDefault();
+                        e.stopPropagation();
                         reopenClosedTab();
                     }
-                    // Ctrl+T → New tab
-                    else if (mod && (e.key === 't' || e.key === 'T')) {
+                    // Ctrl+Alt+T or Ctrl+T → New tab (Alt variant avoids browser default in some envs)
+                    else if (mod && key === 't') {
                         e.preventDefault();
+                        e.stopPropagation();
                         addNewTab();
                     }
-                    // Ctrl+W → Close tab
-                    else if (mod && (e.key === 'w' || e.key === 'W')) {
+                    // Ctrl+W → Close tab (skip if only one empty tab — avoid noop confirms)
+                    else if (mod && key === 'w') {
                         e.preventDefault();
+                        e.stopPropagation();
+                        const target = tabs.find(t => t.id === activeTab);
+                        if (target && target.pinned) {
+                            showToast('Cannot close a pinned tab — unpin first', 'warning');
+                            return;
+                        }
                         closeTab(activeTab);
                     }
                     // Ctrl+Tab / Ctrl+Shift+Tab → next/prev tab
@@ -2035,13 +2224,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         const next = e.shiftKey ? (idx - 1 + tabs.length) % tabs.length : (idx + 1) % tabs.length;
                         setActiveTab(tabs[next].id);
                     }
-                    // Ctrl+Shift+D → toggle dark mode
-                    else if (mod && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+                    // Ctrl+Shift+D → toggle dark mode (must precede Ctrl+D)
+                    else if (mod && e.shiftKey && key === 'd') {
                         e.preventDefault();
                         setDarkMode(d => !d);
                     }
+                    // Ctrl+D → open Diff view
+                    else if (mod && !e.shiftKey && key === 'd') {
+                        e.preventDefault();
+                        setActiveCategory('diff');
+                        setMobileMenuOpen(false);
+                    }
                     // Ctrl+Shift+Z / Ctrl+Y → redo
-                    else if ((mod && e.shiftKey && (e.key === 'Z' || e.key === 'z')) || (mod && !e.shiftKey && (e.key === 'y' || e.key === 'Y'))) {
+                    else if ((mod && e.shiftKey && key === 'z') || (mod && !e.shiftKey && key === 'y')) {
                         // Quill handles its own when editor is focused; we add global fallback
                         if (document.activeElement && !document.activeElement.closest('.ql-editor')) {
                             e.preventDefault();
@@ -2053,8 +2248,9 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         const idx = parseInt(e.key, 10) - 1;
                         if (tabs[idx]) { e.preventDefault(); setActiveTab(tabs[idx].id); }
                     }
-                    // Esc closes modals
+                    // Esc closes modals (confirm modal handles its own ESC at capture phase)
                     else if (e.key === 'Escape') {
+                        if (confirmState.open) return; // ConfirmModal owns ESC while open
                         if (findOpen) setFindOpen(false);
                         else if (paletteOpen) setPaletteOpen(false);
                         else if (shortcutsOpen) setShortcutsOpen(false);
@@ -2064,7 +2260,7 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 };
                 document.addEventListener('keydown', onKey);
                 return () => document.removeEventListener('keydown', onKey);
-            }, [tabs, activeTab, findOpen, paletteOpen, shortcutsOpen, aboutOpen, mobileMenuOpen]);
+            }, [tabs, activeTab, findOpen, paletteOpen, shortcutsOpen, aboutOpen, mobileMenuOpen, confirmState.open]);
 
             // Init Quill
             React.useEffect(() => {
@@ -2144,11 +2340,16 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             React.useEffect(() => () => {
                 if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
             }, []);
-            const handleTextChange = () => {
+            // Stable reference to current active tab id — avoids stale closures when handleTextChange
+            // is registered with Quill once but `activeTab` changes later.
+            const activeTabRef = React.useRef(activeTab);
+            React.useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
+            const handleTextChange = React.useCallback(() => {
                 if (!quillInstance) return;
                 if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
                 const newText = quillInstance.getText();
-                const targetTabId = activeTab;
+                const targetTabId = activeTabRef.current;
                 // Mark dirty immediately for fast visual feedback
                 setTabs(prevTabs => {
                     const t = prevTabs.find(x => x.id === targetTabId);
@@ -2164,7 +2365,12 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         return prevTabs;
                     });
                 }, 400);
-            };
+            }, [quillInstance]);
+
+            // Keep a ref to the latest handleTextChange so old callers (closeTab, importSession,
+            // clearStorage, etc.) attach the freshest handler when re-binding Quill listeners.
+            const handleTextChangeRef = React.useRef(handleTextChange);
+            React.useEffect(() => { handleTextChangeRef.current = handleTextChange; }, [handleTextChange]);
 
             const addToolbarTooltips = () => {
                 setTimeout(() => {
@@ -2302,11 +2508,16 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 setActiveTab(newId);
                 showToast(`Reopened "${restoredTab.name}"`, 'success');
             };
-            const closeTab = (tabId) => {
+            const closeTab = async (tabId) => {
                 if (tabs.length === 1) {
                     const onlyTab = tabs[0];
                     if (onlyTab.text && onlyTab.text.trim().length > 0) {
-                        if (!confirmAction('Clear the current document? Unsaved content will be lost.')) return;
+                        const ok = await confirmAction('Clear the current document? Unsaved content will be lost.', {
+                            title: 'Clear document',
+                            confirmLabel: 'Clear',
+                            variant: 'danger'
+                        });
+                        if (!ok) return;
                         closedTabsRef.current = [onlyTab, ...closedTabsRef.current].slice(0, 10);
                     }
                     // Reset the only tab instead of closing
@@ -2315,7 +2526,7 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     if (quillInstance) {
                         quillInstance.off('text-change');
                         quillInstance.setText('');
-                        quillInstance.on('text-change', handleTextChange);
+                        quillInstance.on('text-change', handleTextChangeRef.current);
                     }
                     showToast('Tab cleared', 'info');
                     return;
@@ -2327,7 +2538,12 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                     return;
                 }
                 if (tabToClose.text && tabToClose.text.trim().length > 0) {
-                    if (!confirmAction(`Close "${tabToClose.name}"? Unsaved content will be lost.`)) return;
+                    const ok = await confirmAction(`Close "${tabToClose.name}"? Unsaved content will be lost.`, {
+                        title: 'Close tab',
+                        confirmLabel: 'Close tab',
+                        variant: 'danger'
+                    });
+                    if (!ok) return;
                 }
                 closedTabsRef.current = [tabToClose, ...closedTabsRef.current].slice(0, 10);
                 setTabs(prev => {
@@ -2361,16 +2577,20 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 setActiveTab(newId);
                 showToast('Tab duplicated', 'success');
             };
-            const closeOtherTabs = () => {
+            const closeOtherTabs = async () => {
                 if (tabs.length <= 1) return;
                 const closable = tabs.filter(t => t.id !== activeTab && !t.pinned);
                 if (closable.length === 0) {
                     showToast('No closable tabs (others are pinned)', 'info');
                     return;
                 }
-                if (!confirmAction(`Close ${closable.length} other tab(s)? Pinned tabs will be preserved.`)) return;
-                const closedTabs = tabs.filter(t => t.id !== activeTab && !t.pinned);
-                closedTabsRef.current = [...closedTabs, ...closedTabsRef.current].slice(0, 10);
+                const ok = await confirmAction(`Close ${closable.length} other tab(s)? Pinned tabs will be preserved.`, {
+                    title: 'Close other tabs',
+                    confirmLabel: `Close ${closable.length} tab${closable.length !== 1 ? 's' : ''}`,
+                    variant: 'danger'
+                });
+                if (!ok) return;
+                closedTabsRef.current = [...closable, ...closedTabsRef.current].slice(0, 10);
                 setTabs(prev => prev.filter(t => t.id === activeTab || t.pinned));
                 showToast(`Closed ${closable.length} tab${closable.length !== 1 ? 's' : ''}`, 'success');
             };
@@ -2390,12 +2610,21 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             const importSession = (event) => {
                 const file = event.target.files[0]; if (!file) return;
                 const r = new FileReader();
-                r.onload = (e) => {
+                r.onload = async (e) => {
                     try {
                         const data = JSON.parse(e.target.result);
-                        if (!data.tabs || !Array.isArray(data.tabs) || data.tabs.length === 0)
-                            return showToast('Invalid session file', 'error');
-                        if (!window.confirm(`Import session with ${data.tabs.length} tab(s)? Current session will be replaced.`)) return;
+                        if (!data.tabs || !Array.isArray(data.tabs) || data.tabs.length === 0) {
+                            showToast('Invalid session file', 'error');
+                            event.target.value = '';
+                            return;
+                        }
+                        // Force the prompt for imports — replacing the session is destructive even
+                        // if "Confirm destructive actions" was disabled in settings.
+                        const ok = await confirmAction(
+                            `Import session with ${data.tabs.length} tab(s)? Current session will be replaced.`,
+                            { title: 'Import session', confirmLabel: 'Replace session', variant: 'warn', force: true }
+                        );
+                        if (!ok) { event.target.value = ''; return; }
                         setTabs(data.tabs);
                         const targetId = data.activeTab && data.tabs.some(t => t.id === data.activeTab) ? data.activeTab : data.tabs[0].id;
                         setActiveTab(targetId);
@@ -2403,23 +2632,27 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                             const targetTab = data.tabs.find(t => t.id === targetId);
                             quillInstance.off('text-change');
                             quillInstance.setText(targetTab?.text || '');
-                            quillInstance.on('text-change', handleTextChange);
+                            quillInstance.on('text-change', handleTextChangeRef.current);
                         }
                         showToast(`Imported ${data.tabs.length} tab${data.tabs.length !== 1 ? 's' : ''} from session`, 'success');
-                    } catch (e) { showToast('Import failed: ' + e.message, 'error'); }
+                    } catch (err) { showToast('Import failed: ' + err.message, 'error'); }
                     event.target.value = '';
                 };
                 r.readAsText(file);
             };
-            const clearStorage = () => {
-                if (!window.confirm('Clear all saved tabs and reset to a single empty document?')) return;
+            const clearStorage = async () => {
+                const ok = await confirmAction(
+                    'Clear all saved tabs and reset to a single empty document?',
+                    { title: 'Clear session', confirmLabel: 'Clear everything', variant: 'danger', force: true }
+                );
+                if (!ok) return;
                 try { localStorage.removeItem('tm_tabs'); localStorage.removeItem('tm_activeTab'); } catch (e) {}
                 setTabs([{ id: 1, name: 'Document 1', text: '' }]);
                 setActiveTab(1);
                 if (quillInstance) {
                     quillInstance.off('text-change');
                     quillInstance.setText('');
-                    quillInstance.on('text-change', handleTextChange);
+                    quillInstance.on('text-change', handleTextChangeRef.current);
                 }
                 showToast('Storage cleared', 'info');
             };
@@ -2493,8 +2726,21 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 if (!letterSymbol) return showToast('Specify a symbol', 'warning');
                 showLoadingFor(() => {
                     const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    setText(text.replace(new RegExp(esc(letterSymbol), 'g'), ''));
-                    showToast(`Removed "${letterSymbol}"`, 'success');
+                    // Only remove the symbol when it sits *between* two letters — the inverse of
+                    // `insertSymbolBetweenLetters`. This avoids destroying genuine punctuation
+                    // (e.g. sentence-ending periods, commas in lists) when the user picked "." or ",".
+                    // We iterate so that consecutive runs like "a.b.c" → "abc" all collapse.
+                    const pattern = new RegExp(`(\\p{L})${esc(letterSymbol)}(?=\\p{L})`, 'gu');
+                    let out = text, prev;
+                    let safety = 0;
+                    do { prev = out; out = out.replace(pattern, '$1'); safety++; }
+                    while (out !== prev && safety < 8);
+                    if (out === text) {
+                        showToast(`No "${letterSymbol}" found between letters`, 'info');
+                    } else {
+                        setText(out);
+                        showToast(`Removed "${letterSymbol}" between letters`, 'success');
+                    }
                 }, 'Removing symbols…');
             };
             const clearLetterSymbolSettings = () => {
@@ -2679,10 +2925,19 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
             };
             const decodeHtmlEntities = () => {
                 if (!text.trim()) return showToast('No text', 'warning');
-                const ta = document.createElement('textarea');
-                ta.innerHTML = text;
-                setText(ta.value);
-                showToast('HTML entities decoded', 'success');
+                try {
+                    // Safer than `textarea.innerHTML = text` — DOMParser parses inside a detached
+                    // document, no script execution, no side effects on the current DOM. We only
+                    // read .textContent so any markup is rendered as plain text.
+                    const doc = new DOMParser().parseFromString(
+                        `<!doctype html><body>${text.replace(/<\/?(script|iframe|object|embed|style|link|meta)\b[^>]*>/gi, '')}`,
+                        'text/html'
+                    );
+                    setText(doc.body.textContent || '');
+                    showToast('HTML entities decoded', 'success');
+                } catch (e) {
+                    showToast('Decode failed: ' + e.message, 'error');
+                }
             };
 
             // ===== Hash Generation =====
@@ -4721,6 +4976,9 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                 { id: 'session-clear', name: 'Clear Saved Session', icon: 'fa-eraser', category: 'Session', action: clearStorage },
                 // View
                 { id: 'edit-find', name: 'Find & Replace', icon: 'fa-magnifying-glass', category: 'Edit', shortcut: 'Ctrl+F', action: () => setFindOpen(true) },
+                { id: 'nav-settings-kbd', name: 'Open Settings', icon: 'fa-gear', category: 'Navigation', shortcut: 'Ctrl+,', action: () => setActiveCategory('settings') },
+                { id: 'nav-diff-kbd', name: 'Open Diff View', icon: 'fa-code-compare', category: 'Navigation', shortcut: 'Ctrl+D', action: () => setActiveCategory('diff') },
+                { id: 'help-shortcuts', name: 'Show Keyboard Shortcuts', icon: 'fa-keyboard', category: 'Help', shortcut: 'Ctrl+/', action: () => setShortcutsOpen(true) },
                 { id: 'edit-undo', name: 'Undo', icon: 'fa-rotate-left', category: 'Edit', shortcut: 'Ctrl+Z', action: undo },
                 { id: 'edit-redo', name: 'Redo', icon: 'fa-rotate-right', category: 'Edit', shortcut: 'Ctrl+Y', action: redo },
                 { id: 'edit-copy', name: 'Copy to Clipboard', icon: 'fa-copy', category: 'Edit', action: copyToClipboard },
@@ -5103,10 +5361,14 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                                     {[
                                         { title: 'General', items: [
                                             ['Open command palette', 'Ctrl+K'],
-                                            ['Find & Replace', 'Ctrl+F'],
+                                            ['Find & Replace', 'Ctrl+F / Ctrl+H'],
                                             ['Save as TXT', 'Ctrl+S'],
+                                            ['Save as PDF', 'Ctrl+Shift+S'],
+                                            ['Open Settings', 'Ctrl+,'],
+                                            ['Open Diff view', 'Ctrl+D'],
+                                            ['Show keyboard shortcuts', 'Ctrl+/'],
                                             ['Toggle dark mode', 'Ctrl+Shift+D'],
-                                            ['Toggle focus mode', 'F11'],
+                                            ['Toggle focus mode', 'F11 / Ctrl+Shift+F'],
                                         ]},
                                         { title: 'Editing', items: [
                                             ['Undo', 'Ctrl+Z'],
@@ -5185,11 +5447,28 @@ A sleek, modern text manipulation tool with refined UX and micro-animations.
                         </div>
                     )}
 
-                    <div style={{ position: 'fixed', top: 70, right: 16, zIndex: 100, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div
+                        className="toast-container"
+                        role="region"
+                        aria-label="Notifications"
+                        style={{ position: 'fixed', top: 70, right: 16, zIndex: 220, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}
+                    >
                         {toasts.map(t => (
                             <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />
                         ))}
                     </div>
+
+                    {/* Confirmation modal (replaces blocking window.confirm) */}
+                    <ConfirmModal
+                        open={confirmState.open}
+                        title={confirmState.title}
+                        message={confirmState.message}
+                        confirmLabel={confirmState.confirmLabel}
+                        cancelLabel={confirmState.cancelLabel}
+                        variant={confirmState.variant}
+                        onConfirm={() => handleConfirmResolve(true)}
+                        onCancel={() => handleConfirmResolve(false)}
+                    />
                 </div>
             );
         }
